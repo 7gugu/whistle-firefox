@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
-    "name": "Chrome Extension Starter",
-    "description": "A Chrome Extension starter kit",
+    "name": "Whistle-Switcher",
+    "description": "A Firefox Extension that can help developer switch whistle proxy easily.",
     "version": "1.0.0",
     "action": {
         "default_icon": {
@@ -18,5 +18,5 @@
     },
     "host_permissions": ["https://*/*"],
     "incognito": "spanning",
-    "permissions": ["tabs", "activeTab", "notifications", "scripting", "proxy"]
+    "permissions": ["tabs", "activeTab", "scripting", "proxy", "storage"]
 }
