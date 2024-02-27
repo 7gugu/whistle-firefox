@@ -9,12 +9,31 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@src/components/ui/accordion";
+import { Input } from "@src/components/ui/input";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@src/components/ui/form";
 import {
     WHISTLE_DEFAULT_PROXY_URI,
     WHISTLE_LOCAL_PROXY_URI_KEY,
 } from "@src/constants";
 import { getInitInfo } from "@src/api/fetchWhistleData";
-import { getStorage, checkAllowPrivateAccess } from "@src/utils";
+import {
+    getStorage,
+    checkAllowPrivateAccess,
+    cn,
+    setStorage,
+    refreshPage,
+} from "@src/utils";
+import { z } from "zod";
+import { Button } from "@src/components/ui/button";
+import { Label } from "@src/components/ui/label";
 
 /**
  * Executes a string of Javascript on the current tab
@@ -60,6 +79,31 @@ const IndexPage: React.FC = () => {
             return res[WHISTLE_LOCAL_PROXY_URI_KEY];
         });
     };
+
+    const saveProxyServerUrl = (url: string) => {
+        if (!url) {
+            refreshPage();
+        }
+        setStorage(WHISTLE_LOCAL_PROXY_URI_KEY, url)?.then(() => {
+            getInitInfo()
+                .then((res) => {
+                    setHasProxyServerUrl(true);
+                    setProxyServerUrl(url);
+                    console.info(res);
+                    // 可用就记录规则名称/分组名称 以及规则数量和规则状态
+                    // 记录IPv4地址
+                    // 记录开关状态
+                })
+                .catch(() => {
+                    // 服务器不可用就自动引导到设置页面
+                    console.error("whistle server is not available.");
+                    setHasProxyServerUrl(false);
+                    setProxyServerUrl("");
+                    refreshPage();
+                });
+        });
+    };
+
     useEffect(() => {
         // 检查是否允许在隐私模式下运行
         checkAllowPrivateAccess().then((res) => {
@@ -168,6 +212,25 @@ const IndexPage: React.FC = () => {
                             <div>
                                 <h1>请先设置whistle服务器URL</h1>
                                 {/* TODO: 增加一个localstorage的设定记录Proxy URL */}
+                                <div className="grid w-full max-w-sm items-center gap-1.5">
+                                    <Label htmlFor="email">
+                                        设置Whistle代理地址
+                                    </Label>
+                                    <Input
+                                        type="text"
+                                        placeholder="http://127.0.0.1:8899"
+                                    />
+                                    <p
+                                        className={cn(
+                                            "text-sm text-muted-foreground",
+                                        )}
+                                    >
+                                        加载失败，请确认whistle已经启动（若设置了密码，请确保在浏览器中已经打开并登录）且下面的地址是正确的（若不正确，输入正确的地址）
+                                    </p>
+                                    <Button type="submit" onClick={}>
+                                        保存配置
+                                    </Button>
+                                </div>
                             </div>
                         )}
                     </>

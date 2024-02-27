@@ -17,7 +17,7 @@ export function getStorage(key: string): any {
 
 export function setStorage(key: string, value: any) {
     try {
-        browser.storage.local.set({ [key]: value });
+        return browser.storage.local.set({ [key]: value });
     } catch (e) {
         console.error("setLocalStorage error", e);
     }
@@ -74,4 +74,11 @@ export function filterProxyServerUrl(serverUrl: string) {
  */
 export async function checkAllowPrivateAccess(): Promise<boolean> {
     return browser.extension.isAllowedIncognitoAccess();
+}
+
+/**
+ * 刷新插件页面
+ */
+export function refreshPage() {
+    browser.runtime.reload();
 }
