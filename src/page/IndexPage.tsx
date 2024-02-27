@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import browser, { Tabs } from "webextension-polyfill";
 import { Scroller } from "@src/components/scroller";
 import css from "./styles.module.css";
@@ -10,15 +10,6 @@ import {
     AccordionTrigger,
 } from "@src/components/ui/accordion";
 import { Input } from "@src/components/ui/input";
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@src/components/ui/form";
 import {
     WHISTLE_DEFAULT_PROXY_URI,
     WHISTLE_LOCAL_PROXY_URI_KEY,
@@ -73,14 +64,16 @@ const IndexPage: React.FC = () => {
         useState<boolean>(false);
     const [proxyServerUrl, setProxyServerUrl] = useState<string>("");
     const [hasProxyServerUrl, setHasProxyServerUrl] = useState<boolean>(false);
-
+    const proxyServerUrlRef = useRef<string>("");
+    const [hideStarter, setHideStarter] = useState<boolean>(true);
     const checkHasProxyServerUrl = () => {
         return getStorage(WHISTLE_LOCAL_PROXY_URI_KEY).then((res: any) => {
             return res[WHISTLE_LOCAL_PROXY_URI_KEY];
         });
     };
 
-    const saveProxyServerUrl = (url: string) => {
+    const saveProxyServerUrl = () => {
+        const url = proxyServerUrlRef.current;
         if (!url) {
             refreshPage();
         }
@@ -152,7 +145,7 @@ const IndexPage: React.FC = () => {
             <div className="mx-4 my-4">
                 {allowPrivateAccess ? (
                     <>
-                        {hasProxyServerUrl ? (
+                        {hasProxyServerUrl && hideStarter ? (
                             <>
                                 <Accordion
                                     type="single"
@@ -207,30 +200,42 @@ const IndexPage: React.FC = () => {
                                         });
                                     }}
                                 />
+                                <Button
+                                    type="submit"
+                                    onClick={() => {
+                                        setHideStarter(false);
+                                    }}
+                                >
+                                    保存配置
+                                </Button>
                             </>
                         ) : (
-                            <div>
-                                <h1>请先设置whistle服务器URL</h1>
-                                {/* TODO: 增加一个localstorage的设定记录Proxy URL */}
-                                <div className="grid w-full max-w-sm items-center gap-1.5">
-                                    <Label htmlFor="email">
-                                        设置Whistle代理地址
-                                    </Label>
-                                    <Input
-                                        type="text"
-                                        placeholder="http://127.0.0.1:8899"
-                                    />
-                                    <p
-                                        className={cn(
-                                            "text-sm text-muted-foreground",
-                                        )}
-                                    >
-                                        加载失败，请确认whistle已经启动（若设置了密码，请确保在浏览器中已经打开并登录）且下面的地址是正确的（若不正确，输入正确的地址）
-                                    </p>
-                                    <Button type="submit" onClick={}>
-                                        保存配置
-                                    </Button>
-                                </div>
+                            <div className="grid w-full max-w-sm items-center gap-1.5">
+                                <Label htmlFor="email">
+                                    设置Whistle代理地址
+                                </Label>
+                                <Input
+                                    type="text"
+                                    value={proxyServerUrl}
+                                    placeholder="http://127.0.0.1:8899"
+                                    onChange={(str) => {
+                                        proxyServerUrlRef.current =
+                                            str.target.value;
+                                    }}
+                                />
+                                <p
+                                    className={cn(
+                                        "text-sm text-muted-foreground",
+                                    )}
+                                >
+                                    加载失败，请确认whistle已经启动（若设置了密码，请确保在浏览器中已经打开并登录）且下面的地址是正确的（若不正确，输入正确的地址）
+                                </p>
+                                <Button
+                                    type="submit"
+                                    onClick={saveProxyServerUrl}
+                                >
+                                    保存配置
+                                </Button>
                             </div>
                         )}
                     </>
