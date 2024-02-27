@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Hello } from "@src/components/hello";
 import browser, { Tabs } from "webextension-polyfill";
 import { Scroller } from "@src/components/scroller";
 import css from "./styles.module.css";
+
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@src/components/ui/accordion";
 
 // // // //
 
@@ -51,22 +58,61 @@ function executeScript(position: number): void {
 
 export function Popup() {
     // Sends the `popupMounted` event
-    React.useEffect(() => {
-        browser.runtime.sendMessage({ popupMounted: true });
+    useEffect(() => {
+        browser.proxy.settings.onChange.addListener((details) => {
+            console.log(`New proxy settings: ${JSON.stringify(details.value)}`);
+        });
+        return () => {
+            browser.proxy.settings.onChange.removeListener((details) => {
+                console.log(
+                    `New proxy settings: ${JSON.stringify(details.value)}`,
+                );
+            });
+        };
     }, []);
 
     // Renders the component tree
     return (
         <div className={css.popupContainer}>
             <div className="mx-4 my-4">
-                <Hello />
+                <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="item-1">
+                        <AccordionTrigger>Is it accessible?</AccordionTrigger>
+                        <AccordionContent>
+                            Yes. It adheres to the WAI-ARIA design pattern.
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-2">
+                        <AccordionTrigger>Is it styled?</AccordionTrigger>
+                        <AccordionContent>
+                            Yes. It comes with default styles that matches the
+                            other components&apos; aesthetic.
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="item-3">
+                        <AccordionTrigger>Is it animated?</AccordionTrigger>
+                        <AccordionContent>
+                            Yes. It&apos;s animated by default, but you can
+                            disable it if you prefer.
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
                 <hr />
                 <Scroller
                     onClickScrollTop={() => {
-                        executeScript(scrollToTopPosition);
+                        browser.proxy.settings.set({
+                            value: {
+                                proxyType: "manual",
+                                http: "http://127.0.0.1:8899",
+                            },
+                        });
                     }}
                     onClickScrollBottom={() => {
-                        executeScript(scrollToBottomPosition);
+                        browser.proxy.settings.set({
+                            value: {
+                                proxyType: "system",
+                            },
+                        });
                     }}
                 />
             </div>

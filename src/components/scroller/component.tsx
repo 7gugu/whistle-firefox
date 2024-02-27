@@ -17,14 +17,14 @@ export function Scroller(props: {
                 data-testid="scroll-to-top"
                 onClick={() => props.onClickScrollTop()}
             >
-                Scroll To Top
+                设置代理
             </button>
             <button
                 className={css.btn}
                 data-testid="scroll-to-bottom"
                 onClick={() => props.onClickScrollBottom()}
             >
-                Scroll To Bottom
+                清空代理
             </button>
         </div>
     );

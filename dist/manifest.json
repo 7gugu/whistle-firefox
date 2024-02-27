@@ -1,4 +1,3 @@
-
 {
     "manifest_version": 3,
     "name": "Chrome Extension Starter",
@@ -12,15 +11,12 @@
         },
         "default_popup": "popup.html"
     },
-    "background": {
-        "service_worker": "js/backgroundPage.js"
-    },
     "icons": {
         "16": "icon-16.png",
         "48": "icon-48.png",
         "128": "icon-128.png"
     },
-    "host_permissions": ["https:\/\/*/*"],
-    "permissions": ["tabs", "activeTab", "notifications", "scripting"]
+    "host_permissions": ["https://*/*"],
+    "incognito": "spanning",
+    "permissions": ["tabs", "activeTab", "notifications", "scripting", "proxy"]
 }
-
