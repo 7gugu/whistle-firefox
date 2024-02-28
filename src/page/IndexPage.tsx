@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import browser, { Tabs } from "webextension-polyfill";
+import browser from "webextension-polyfill";
 import { Scroller } from "@src/components/scroller";
 import css from "./styles.module.css";
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@src/components/ui/tabs";
 
 import {
     Accordion,
@@ -22,42 +28,8 @@ import {
     setStorage,
     refreshPage,
 } from "@src/utils";
-import { z } from "zod";
 import { Button } from "@src/components/ui/button";
 import { Label } from "@src/components/ui/label";
-
-/**
- * Executes a string of Javascript on the current tab
- * @param code The string of code to execute on the current tab
- */
-function executeScript(position: number): void {
-    // Query for the active tab in the current window
-    browser.tabs
-        .query({ active: true, currentWindow: true })
-        .then((tabs: Tabs.Tab[]) => {
-            // Pulls current tab from browser.tabs.query response
-            const currentTab: Tabs.Tab | number = tabs[0];
-
-            // Short circuits function execution is current tab isn't found
-            if (!currentTab) {
-                return;
-            }
-            const currentTabId: number = currentTab.id as number;
-
-            // Executes the script in the current tab
-            // browser.scripting
-            //     .executeScript({
-            //         target: {
-            //             tabId: currentTabId,
-            //         },
-            //         func: scrollWindow,
-            //         args: [position],
-            //     })
-            //     .then(() => {
-            //         console.log("Done Scrolling");
-            //     });
-        });
-}
 
 const IndexPage: React.FC = () => {
     const [allowPrivateAccess, setAllowPrivateAccess] =
@@ -147,41 +119,71 @@ const IndexPage: React.FC = () => {
                     <>
                         {hasProxyServerUrl && hideStarter ? (
                             <>
-                                <Accordion
-                                    type="single"
-                                    collapsible
-                                    className="w-full"
-                                >
-                                    <AccordionItem value="item-1">
-                                        <AccordionTrigger>
-                                            Is it accessible?
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            Yes. It adheres to the WAI-ARIA
-                                            design pattern.
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <AccordionItem value="item-2">
-                                        <AccordionTrigger>
-                                            Is it styled?
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            Yes. It comes with default styles
-                                            that matches the other
-                                            components&apos; aesthetic.
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <AccordionItem value="item-3">
-                                        <AccordionTrigger>
-                                            Is it animated?
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            Yes. It&apos;s animated by default,
-                                            but you can disable it if you
-                                            prefer.
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                </Accordion>
+                                <Tabs defaultValue="rule" className="w-[400px]">
+                                    <TabsList className="grid w-full grid-cols-2">
+                                        <TabsTrigger
+                                            value="rule"
+                                            className="data-[state=active]:bg-white"
+                                        >
+                                            Rule
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value="status"
+                                            className="data-[state=active]:bg-white"
+                                        >
+                                            Status
+                                        </TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="rule">
+                                        <Accordion
+                                            type="single"
+                                            collapsible
+                                            className="w-full"
+                                        >
+                                            <AccordionItem value="item-1">
+                                                <AccordionTrigger>
+                                                    Is it accessible?
+                                                </AccordionTrigger>
+                                                <AccordionContent>
+                                                    Yes. It adheres to the
+                                                    WAI-ARIA design pattern.
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                            <AccordionItem value="item-2">
+                                                <AccordionTrigger>
+                                                    Is it styled?
+                                                </AccordionTrigger>
+                                                <AccordionContent>
+                                                    Yes. It comes with default
+                                                    styles that matches the
+                                                    other components&apos;
+                                                    aesthetic.
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                            <AccordionItem value="item-3">
+                                                <AccordionTrigger>
+                                                    Is it animated?
+                                                </AccordionTrigger>
+                                                <AccordionContent>
+                                                    Yes. It&apos;s animated by
+                                                    default, but you can disable
+                                                    it if you prefer.
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        </Accordion>
+                                    </TabsContent>
+                                    <TabsContent value="status">
+                                        <Button
+                                            type="submit"
+                                            onClick={() => {
+                                                setHideStarter(false);
+                                            }}
+                                        >
+                                            设置代理地址
+                                        </Button>
+                                    </TabsContent>
+                                </Tabs>
+
                                 <hr />
                                 <Scroller
                                     onClickScrollTop={() => {
@@ -200,14 +202,6 @@ const IndexPage: React.FC = () => {
                                         });
                                     }}
                                 />
-                                <Button
-                                    type="submit"
-                                    onClick={() => {
-                                        setHideStarter(false);
-                                    }}
-                                >
-                                    保存配置
-                                </Button>
                             </>
                         ) : (
                             <div className="grid w-full max-w-sm items-center gap-1.5">
