@@ -9,17 +9,8 @@ import {
     TabsTrigger,
 } from "@src/components/ui/tabs";
 
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@src/components/ui/accordion";
 import { Input } from "@src/components/ui/input";
-import {
-    WHISTLE_DEFAULT_PROXY_URI,
-    WHISTLE_LOCAL_PROXY_URI_KEY,
-} from "@src/constants";
+import { WHISTLE_LOCAL_PROXY_URI_KEY } from "@src/constants";
 import { getInitInfo } from "@src/api/fetchWhistleData";
 import {
     getStorage,
@@ -30,6 +21,9 @@ import {
 } from "@src/utils";
 import { Button } from "@src/components/ui/button";
 import { Label } from "@src/components/ui/label";
+import { Switch } from "@src/components/ui/switch";
+import BlackListPanel from "@src/components/BlackListPanel";
+import RulePanel from "@src/components/RulePanel";
 
 const IndexPage: React.FC = () => {
     const [allowPrivateAccess, setAllowPrivateAccess] =
@@ -47,7 +41,8 @@ const IndexPage: React.FC = () => {
     const saveProxyServerUrl = () => {
         const url = proxyServerUrlRef.current;
         if (!url) {
-            refreshPage();
+            // refreshPage();
+            return;
         }
         setStorage(WHISTLE_LOCAL_PROXY_URI_KEY, url)?.then(() => {
             getInitInfo()
@@ -114,18 +109,24 @@ const IndexPage: React.FC = () => {
     // Renders the component tree
     return (
         <div className={css.popupContainer}>
-            <div className="mx-4 my-4">
+            <div className="mx-6 my-6">
                 {allowPrivateAccess ? (
                     <>
                         {hasProxyServerUrl && hideStarter ? (
                             <>
                                 <Tabs defaultValue="rule" className="w-[400px]">
-                                    <TabsList className="grid w-full grid-cols-2">
+                                    <TabsList className="grid w-full grid-cols-3">
                                         <TabsTrigger
                                             value="rule"
                                             className="data-[state=active]:bg-white"
                                         >
                                             Rule
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value="blackList"
+                                            className="data-[state=active]:bg-white"
+                                        >
+                                            BlackList
                                         </TabsTrigger>
                                         <TabsTrigger
                                             value="status"
@@ -135,52 +136,85 @@ const IndexPage: React.FC = () => {
                                         </TabsTrigger>
                                     </TabsList>
                                     <TabsContent value="rule">
-                                        <Accordion
-                                            type="single"
-                                            collapsible
-                                            className="w-full"
-                                        >
-                                            <AccordionItem value="item-1">
-                                                <AccordionTrigger>
-                                                    Is it accessible?
-                                                </AccordionTrigger>
-                                                <AccordionContent>
-                                                    Yes. It adheres to the
-                                                    WAI-ARIA design pattern.
-                                                </AccordionContent>
-                                            </AccordionItem>
-                                            <AccordionItem value="item-2">
-                                                <AccordionTrigger>
-                                                    Is it styled?
-                                                </AccordionTrigger>
-                                                <AccordionContent>
-                                                    Yes. It comes with default
-                                                    styles that matches the
-                                                    other components&apos;
-                                                    aesthetic.
-                                                </AccordionContent>
-                                            </AccordionItem>
-                                            <AccordionItem value="item-3">
-                                                <AccordionTrigger>
-                                                    Is it animated?
-                                                </AccordionTrigger>
-                                                <AccordionContent>
-                                                    Yes. It&apos;s animated by
-                                                    default, but you can disable
-                                                    it if you prefer.
-                                                </AccordionContent>
-                                            </AccordionItem>
-                                        </Accordion>
+                                        <RulePanel />
+                                    </TabsContent>
+                                    <TabsContent value="blackList">
+                                        <BlackListPanel />
                                     </TabsContent>
                                     <TabsContent value="status">
-                                        <Button
-                                            type="submit"
-                                            onClick={() => {
-                                                setHideStarter(false);
-                                            }}
-                                        >
-                                            设置代理地址
-                                        </Button>
+                                        <div className="flex items-center space-x-2">
+                                            <Label htmlFor="airplane-mode">
+                                                多规则
+                                            </Label>
+                                            <Switch id="airplane-mode" />
+                                            <Label htmlFor="airplane-mode">
+                                                支持多规则
+                                            </Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Label htmlFor="airplane-mode">
+                                                自动刷新
+                                            </Label>
+                                            <Switch id="airplane-mode" />
+                                            <Label htmlFor="airplane-mode">
+                                                启用/停用新规则后自动刷新页面
+                                            </Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Label htmlFor="airplane-mode">
+                                                代理服务器端口
+                                            </Label>
+
+                                            <p
+                                                className={cn(
+                                                    "text-sm text-muted-foreground",
+                                                )}
+                                            >
+                                                8899
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Label htmlFor="airplane-mode">
+                                                代理服务器Ipv4
+                                            </Label>
+                                            <p
+                                                className={cn(
+                                                    "text-sm text-muted-foreground",
+                                                )}
+                                            >
+                                                192.168.0.1
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Button
+                                                type="submit"
+                                                onClick={() => {
+                                                    setHideStarter(false);
+                                                }}
+                                            >
+                                                更换代理地址
+                                            </Button>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Button
+                                                type="submit"
+                                                onClick={() => {
+                                                    setHideStarter(false);
+                                                }}
+                                            >
+                                                点击设置快捷键
+                                            </Button>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Button
+                                                type="submit"
+                                                onClick={() => {
+                                                    setHideStarter(false);
+                                                }}
+                                            >
+                                                更多设置
+                                            </Button>
+                                        </div>
                                     </TabsContent>
                                 </Tabs>
 
