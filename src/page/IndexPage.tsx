@@ -18,6 +18,7 @@ import {
     cn,
     setStorage,
     refreshPage,
+    setBadge,
 } from "@src/utils";
 import { Button } from "@src/components/ui/button";
 import { Label } from "@src/components/ui/label";
@@ -32,10 +33,27 @@ const IndexPage: React.FC = () => {
     const [hasProxyServerUrl, setHasProxyServerUrl] = useState<boolean>(false);
     const proxyServerUrlRef = useRef<string>("");
     const [hideStarter, setHideStarter] = useState<boolean>(true);
-    const checkHasProxyServerUrl = () => {
-        return getStorage(WHISTLE_LOCAL_PROXY_URI_KEY).then((res: any) => {
-            return res[WHISTLE_LOCAL_PROXY_URI_KEY];
+    const [whistleData, setWhistleData] = useState<any>({});
+
+    const jumpToWhistle = () => {
+        getProxyServerUrl().then((res: any) => {
+            browser.tabs.create({
+                url: res.indexOf("http://") >= 0 ? res : `http://${res}`,
+            });
         });
+    };
+    const checkHasProxyServerUrl = () => {
+        return getProxyServerUrl();
+    };
+
+    const getProxyServerUrl = () => {
+        return getStorage(WHISTLE_LOCAL_PROXY_URI_KEY)
+            .then((res: any) => {
+                return res[WHISTLE_LOCAL_PROXY_URI_KEY];
+            })
+            .catch(() => {
+                return null;
+            });
     };
 
     const saveProxyServerUrl = () => {
@@ -44,24 +62,22 @@ const IndexPage: React.FC = () => {
             // refreshPage();
             return;
         }
-        setStorage(WHISTLE_LOCAL_PROXY_URI_KEY, url)?.then(() => {
-            getInitInfo()
-                .then((res) => {
-                    setHasProxyServerUrl(true);
-                    setProxyServerUrl(url);
-                    console.info(res);
-                    // 可用就记录规则名称/分组名称 以及规则数量和规则状态
-                    // 记录IPv4地址
-                    // 记录开关状态
-                })
-                .catch(() => {
-                    // 服务器不可用就自动引导到设置页面
-                    console.error("whistle server is not available.");
-                    setHasProxyServerUrl(false);
-                    setProxyServerUrl("");
-                    refreshPage();
-                });
-        });
+        getInitInfo(url)
+            .then((res) => {
+                setHasProxyServerUrl(true);
+                setHideStarter(true);
+                setProxyServerUrl(url);
+                setStorage(WHISTLE_LOCAL_PROXY_URI_KEY, url);
+                // 可用就记录规则名称/分组名称 以及规则数量和规则状态
+                // 记录IPv4地址
+                // 记录开关状态
+            })
+            .catch(() => {
+                // 服务器不可用就自动引导到设置页面
+                console.error("whistle server is not available.");
+                setHasProxyServerUrl(false);
+                setProxyServerUrl("");
+            });
     };
 
     useEffect(() => {
@@ -73,6 +89,7 @@ const IndexPage: React.FC = () => {
         checkHasProxyServerUrl().then((res: any) => {
             setHasProxyServerUrl(!!res);
             setProxyServerUrl(res);
+            setHideStarter(!!res);
         });
     }, []);
 
@@ -90,20 +107,42 @@ const IndexPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        // 初始化获取whistle配置
-        getInitInfo()
-            .then((res) => {
-                console.info(res);
-                // 可用就记录规则名称/分组名称 以及规则数量和规则状态
-                // 记录IPv4地址
-                // 记录开关状态
+        getProxyServerUrl()
+            .then((res: any) => {
+                // 初始化获取whistle配置
+                getInitInfo(res)
+                    .then((res) => {
+                        console.info(res);
+                        setWhistleData(res);
+                        // 可用就记录规则名称/分组名称 以及规则数量和规则状态
+                        // 记录IPv4地址
+                        // 记录开关状态
+                        const activeRules =
+                            res.rules.list.filter((rule: any) => rule.selected)
+                                .length +
+                            (res.rules.defaultRulesIsDisabled ? 0 : 1);
+                        browser.runtime.sendMessage({ activeRules });
+
+                        console.info(
+                            activeRules,
+                            res.rules.defaultRulesIsDisabled ? 0 : 1,
+                            res.rules.list.filter((rule: any) => rule.selected)
+                                .length,
+                        );
+                    })
+                    .catch((err) => {
+                        // 服务器不可用就自动引导到设置页面
+                        console.error("whistle server is not available.", err);
+                        setHasProxyServerUrl(false);
+                        setWhistleData({});
+                    });
             })
             .catch(() => {
                 // 服务器不可用就自动引导到设置页面
                 console.error("whistle server is not available.");
                 setHasProxyServerUrl(false);
+                setHideStarter(false);
             });
-        //
     }, [allowPrivateAccess]);
 
     // Renders the component tree
@@ -120,19 +159,19 @@ const IndexPage: React.FC = () => {
                                             value="rule"
                                             className="data-[state=active]:bg-white"
                                         >
-                                            Rule
+                                            规则管理
                                         </TabsTrigger>
                                         <TabsTrigger
                                             value="blackList"
                                             className="data-[state=active]:bg-white"
                                         >
-                                            BlackList
+                                            黑名单设置
                                         </TabsTrigger>
                                         <TabsTrigger
                                             value="status"
                                             className="data-[state=active]:bg-white"
                                         >
-                                            Status
+                                            状态设置
                                         </TabsTrigger>
                                     </TabsList>
                                     <TabsContent value="rule">
@@ -155,7 +194,10 @@ const IndexPage: React.FC = () => {
                                             <Label htmlFor="airplane-mode">
                                                 自动刷新
                                             </Label>
-                                            <Switch id="airplane-mode" />
+                                            <Switch
+                                                id="airplane-mode"
+                                                defaultChecked={true}
+                                            />
                                             <Label htmlFor="airplane-mode">
                                                 启用/停用新规则后自动刷新页面
                                             </Label>
@@ -209,7 +251,7 @@ const IndexPage: React.FC = () => {
                                             <Button
                                                 type="submit"
                                                 onClick={() => {
-                                                    setHideStarter(false);
+                                                    jumpToWhistle();
                                                 }}
                                             >
                                                 更多设置
@@ -221,11 +263,13 @@ const IndexPage: React.FC = () => {
                                 <hr />
                                 <Scroller
                                     onClickScrollTop={() => {
-                                        browser.proxy.settings.set({
-                                            value: {
-                                                proxyType: "manual",
-                                                http: "http://127.0.0.1:8899",
-                                            },
+                                        getProxyServerUrl().then((res: any) => {
+                                            browser.proxy.settings.set({
+                                                value: {
+                                                    proxyType: "manual",
+                                                    http: `${res}`,
+                                                },
+                                            });
                                         });
                                     }}
                                     onClickScrollBottom={() => {
@@ -244,7 +288,7 @@ const IndexPage: React.FC = () => {
                                 </Label>
                                 <Input
                                     type="text"
-                                    value={proxyServerUrl}
+                                    defaultValue={proxyServerUrl}
                                     placeholder="http://127.0.0.1:8899"
                                     onChange={(str) => {
                                         proxyServerUrlRef.current =

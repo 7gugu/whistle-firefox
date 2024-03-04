@@ -28,10 +28,10 @@ export function setStorage(key: string, value: any) {
  * @param count 已激活的规则数量
  */
 export function setBadge(count: number) {
-    browser.browserAction.setBadgeBackgroundColor({
-        color: "#f0ac58",
-    });
-    browser.browserAction.setBadgeText({ text: count ? count.toString() : "" });
+    // browser.action.setBadgeBackgroundColor({
+    //     color: "#f0ac58",
+    // });
+    browser.action.setBadgeText({ text: count ? count.toString() : "" });
 }
 
 /**

@@ -16,7 +16,17 @@
         "48": "icon-48.png",
         "128": "icon-128.png"
     },
+    "background": {
+        "scripts": ["js/backgroundPage.js"]
+    },
     "host_permissions": ["https://*/*"],
     "incognito": "spanning",
-    "permissions": ["tabs", "activeTab", "scripting", "proxy", "storage"]
+    "permissions": [
+        "tabs",
+        "activeTab",
+        "scripting",
+        "proxy",
+        "storage",
+        "notifications"
+    ]
 }
