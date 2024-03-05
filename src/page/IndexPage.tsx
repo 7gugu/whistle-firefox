@@ -25,6 +25,7 @@ import { Label } from "@src/components/ui/label";
 import { Switch } from "@src/components/ui/switch";
 import BlackListPanel from "@src/components/BlackListPanel";
 import RulePanel from "@src/components/RulePanel";
+import { PassThrough } from "stream";
 
 const IndexPage: React.FC = () => {
     const [allowPrivateAccess, setAllowPrivateAccess] =
