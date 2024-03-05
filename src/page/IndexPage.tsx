@@ -291,7 +291,7 @@ const IndexPage: React.FC = () => {
                                     type="text"
                                     defaultValue={proxyServerUrl}
                                     placeholder="http://127.0.0.1:8899"
-                                    onChange={(str) => {
+                                    onInput={(str) => {
                                         proxyServerUrlRef.current =
                                             str.target.value;
                                     }}
