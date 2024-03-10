@@ -1,10 +1,17 @@
-import { WHISTLE_INIT_URI } from "@src/constants";
+import {
+    WHISTLE_INIT_URI,
+    WHISTLE_SELECT_DEFAULT_URI,
+    WHISTLE_SELECT_URI,
+    WHISTLE_UNSELECT_DEFAULT_URI,
+    WHISTLE_UNSELECT_URI,
+} from "@src/constants";
 
 /**
  * 获取whistle配置
  * @returns {string}
  */
-export function getInitInfo(url: string = WHISTLE_INIT_URI) {
+export function getInitInfo(params: { url: string }) {
+    const { url = WHISTLE_INIT_URI } = params;
     return fetch(`${url}${WHISTLE_INIT_URI}?_-${new Date().getTime()}`).then(
         (res) => res.json(),
     );
@@ -13,14 +20,129 @@ export function getInitInfo(url: string = WHISTLE_INIT_URI) {
 /**
  * 启用规则
  */
-// export function setRuleEnable() {}
+export function setRuleEnable(params: {
+    url: string;
+    clientId: string;
+    rule: { name: string; data: string; index: number };
+}) {
+    const { url = WHISTLE_INIT_URI, clientId, rule } = params;
+    return fetch(`${url}${WHISTLE_SELECT_URI}?_-${new Date().getTime()}`, {
+        method: "post",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+            clientId: clientId,
+            name: rule.name,
+            value: rule.data,
+            selected: "true",
+            active: "true",
+            key: `w-reactkey-${rule.index + 2}`,
+            icon: "checkbox",
+            hide: "false",
+            changed: "false",
+        }),
+    }).then((res) => res.json());
+}
 
 /**
  * 禁用规则
  */
-// export function setRuleDisable() {}
+export function setRuleDisable(params: {
+    url: string;
+    clientId: string;
+    rule: { name: string; data: string; index: number };
+}) {
+    const { url = WHISTLE_INIT_URI, clientId, rule } = params;
+    return fetch(`${url}${WHISTLE_UNSELECT_URI}?_-${new Date().getTime()}`, {
+        method: "post",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+            clientId: clientId,
+            name: rule.name,
+            value: rule.data,
+            selected: "true",
+            active: "true",
+            key: `w-reactkey-${rule.index + 2}`,
+            icon: "checkbox",
+            hide: "false",
+            changed: "false",
+        }),
+    }).then((res) => res.json());
+}
 
-/**
- * 获取IPv4地址
- */
-// export function getIPv4Address() {}
+export function setDefaultRuleEnable(params: {
+    url: string;
+    clientId: string;
+    rule: { name: string; data: string; index: number };
+}) {
+    const { url, clientId, rule } = params;
+    return fetch(
+        `${url}${WHISTLE_SELECT_DEFAULT_URI}?_-${new Date().getTime()}`,
+        {
+            method: "post",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                clientId,
+                name: "Default",
+                fixed: "true",
+                value: rule.data,
+                selected: "true",
+                isDefault: "true",
+                active: "true",
+                key: "w-reactkey-1",
+                icon: "checkbox",
+            }),
+        },
+    );
+}
+
+export function setDefaultRuleDisable(params: {
+    url: string;
+    clientId: string;
+    rule: { name: string; data: string; index: number };
+}) {
+    const { url, clientId, rule } = params;
+    return fetch(
+        `${url}${WHISTLE_UNSELECT_DEFAULT_URI}?_-${new Date().getTime()}`,
+        {
+            method: "post",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                clientId,
+                name: "Default",
+                fixed: "true",
+                value: rule.data,
+                selected: "true",
+                isDefault: "true",
+                active: "true",
+                key: "w-reactkey-1",
+                icon: "checkbox",
+            }),
+        },
+    );
+}
+
+// async setAllowMultipleChoice(t) {
+//   return await fetch(`${await q()}/cgi-bin/rules/allow-multiple-choice`, {
+//     method: "post",
+//     headers: {
+//       Accept: "application/json",
+//       "Content-Type": "application/x-www-form-urlencoded"
+//     },
+//     body: Fe.stringify({
+//       clientId: ye,
+//       allowMultipleChoice: t ? 1 : 0
+//     })
+//   });
+// }

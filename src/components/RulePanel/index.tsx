@@ -1,46 +1,127 @@
 import React, { useEffect, useRef, useState } from "react";
-import css from "./styles.module.css";
+import { Collapse, CollapseProps, Switch } from "antd";
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@src/components/ui/accordion";
+    setDefaultRuleDisable,
+    setDefaultRuleEnable,
+    setRuleDisable,
+    setRuleEnable,
+} from "@src/api/fetchWhistleData";
 
-const BlackListPanel: React.FC = () => {
-    // Renders the component tree
+export interface RulePanelProps {
+    url: string;
+    whistleData: any;
+    refreshData: () => void;
+}
+
+const RulePanel: React.FC<RulePanelProps> = (props: RulePanelProps) => {
+    const { whistleData, url, refreshData } = props;
+    if (!whistleData || !whistleData.rules) return null;
+    const { rules } = whistleData;
+    const { defaultRulesIsDisabled, defaultRules } = rules;
+    console.info(rules);
+    const switchRender = (rule: any) => {
+        console.info(">>", rule.index, defaultRulesIsDisabled, rule);
+        return (
+            <Switch
+                size="small"
+                checked={rule.selected}
+                key={rule.index}
+                onClick={() => {
+                    const params = {
+                        url,
+                        clientId: whistleData.clientId,
+                        rule,
+                    };
+                    if (rule.index === 0) {
+                        rule.selected
+                            ? setDefaultRuleDisable(params)
+                            : setDefaultRuleEnable(params);
+                    } else {
+                        rule.selected
+                            ? setRuleDisable(params)
+                            : setRuleEnable(params);
+                    }
+
+                    refreshData();
+                }}
+            />
+        );
+    };
+    const rulesTemplate: any[] = [];
+
+    rulesTemplate.push({
+        key: "default",
+        label: "Default Rule",
+        children: [],
+        extra: switchRender({
+            data: defaultRules,
+            index: 0,
+            name: "default",
+            selected: !defaultRulesIsDisabled,
+        }),
+        showArrow: false,
+        selected: !defaultRulesIsDisabled,
+    });
+    const isGroup = (name: string) => name.includes("\r");
+    let groupIndex = 0;
+    rules?.list?.map((value: any, index: number) => {
+        const { name } = value;
+        if (isGroup(name)) {
+            groupIndex = rulesTemplate.length;
+        }
+        if (groupIndex > 0 && !isGroup(name)) {
+            rulesTemplate[groupIndex].children.push({
+                key: String(index),
+                label: name,
+                children: [],
+                extra: isGroup(name) ? null : switchRender(value),
+                showArrow: isGroup(name),
+                selected: value.selected,
+            });
+        } else {
+            rulesTemplate.push({
+                key: String(index),
+                label: name,
+                children: [],
+                extra: isGroup(name) ? null : switchRender(value),
+                showArrow: isGroup(name),
+                selected: value.selected,
+            });
+        }
+    });
+
+    // 将整合后的规则
+    rulesTemplate.forEach((value) => {
+        const items = value.children;
+        if (value.children.length > 0) {
+            const activeItems = items.filter((v: any) => {
+                console.info(v);
+                return v.selected;
+            });
+            value.label = `${value.label} (${activeItems.length}/${items.length})`;
+            value.children = (
+                <Collapse
+                    size="small"
+                    collapsible="icon"
+                    expandIconPosition="end"
+                    items={items}
+                    ghost
+                />
+            );
+        } else {
+            value.children = null;
+        }
+    });
+
     return (
-        <div className={css.popupContainer}>
-            <div className="mx-4 my-4">
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                    <Accordion type="single" collapsible className="w-full">
-                        <AccordionItem value="item-1">
-                            <AccordionTrigger>
-                                Is it accessible?
-                            </AccordionTrigger>
-                            <AccordionContent>
-                                Yes. It adheres to the WAI-ARIA design pattern.
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="item-2">
-                            <AccordionTrigger>Is it styled?</AccordionTrigger>
-                            <AccordionContent>
-                                Yes. It comes with default styles that matches
-                                the other components&apos; aesthetic.
-                            </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="item-3">
-                            <AccordionTrigger>Is it animated?</AccordionTrigger>
-                            <AccordionContent>
-                                Yes. It&apos;s animated by default, but you can
-                                disable it if you prefer.
-                            </AccordionContent>
-                        </AccordionItem>
-                    </Accordion>
-                </div>
-            </div>
-        </div>
+        <Collapse
+            size="small"
+            collapsible="icon"
+            expandIconPosition="end"
+            items={rulesTemplate}
+            ghost
+        />
     );
 };
 
-export default BlackListPanel;
+export default RulePanel;

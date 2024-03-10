@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import browser from "webextension-polyfill";
 import { Scroller } from "@src/components/scroller";
-import css from "./styles.module.css";
 import {
     Tabs,
     TabsContent,
@@ -17,15 +16,12 @@ import {
     checkAllowPrivateAccess,
     cn,
     setStorage,
-    refreshPage,
-    setBadge,
 } from "@src/utils";
 import { Button } from "@src/components/ui/button";
 import { Label } from "@src/components/ui/label";
-import { Switch } from "@src/components/ui/switch";
 import BlackListPanel from "@src/components/BlackListPanel";
 import RulePanel from "@src/components/RulePanel";
-import { PassThrough } from "stream";
+import { Alert, Col, Row, Switch } from "antd";
 
 const IndexPage: React.FC = () => {
     const [allowPrivateAccess, setAllowPrivateAccess] =
@@ -63,8 +59,9 @@ const IndexPage: React.FC = () => {
             // refreshPage();
             return;
         }
-        getInitInfo(url)
+        getInitInfo({ url })
             .then((res) => {
+                setWhistleData(res);
                 setHasProxyServerUrl(true);
                 setHideStarter(true);
                 setProxyServerUrl(url);
@@ -79,6 +76,12 @@ const IndexPage: React.FC = () => {
                 setHasProxyServerUrl(false);
                 setProxyServerUrl("");
             });
+    };
+
+    const refreshWhistleData = () => {
+        getInitInfo({ url: proxyServerUrl }).then((res) => {
+            setWhistleData(res);
+        });
     };
 
     useEffect(() => {
@@ -111,7 +114,7 @@ const IndexPage: React.FC = () => {
         getProxyServerUrl()
             .then((res: any) => {
                 // 初始化获取whistle配置
-                getInitInfo(res)
+                getInitInfo({ url: res })
                     .then((res) => {
                         console.info(res);
                         setWhistleData(res);
@@ -148,177 +151,204 @@ const IndexPage: React.FC = () => {
 
     // Renders the component tree
     return (
-        <div className={css.popupContainer}>
-            <div className="mx-6 my-6">
-                {allowPrivateAccess ? (
-                    <>
-                        {hasProxyServerUrl && hideStarter ? (
-                            <>
-                                <Tabs defaultValue="rule" className="w-[400px]">
-                                    <TabsList className="grid w-full grid-cols-3">
-                                        <TabsTrigger
-                                            value="rule"
-                                            className="data-[state=active]:bg-white"
-                                        >
-                                            规则管理
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value="blackList"
-                                            className="data-[state=active]:bg-white"
-                                        >
-                                            黑名单设置
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value="status"
-                                            className="data-[state=active]:bg-white"
-                                        >
-                                            状态设置
-                                        </TabsTrigger>
-                                    </TabsList>
-                                    <TabsContent value="rule">
-                                        <RulePanel />
-                                    </TabsContent>
-                                    <TabsContent value="blackList">
-                                        <BlackListPanel />
-                                    </TabsContent>
-                                    <TabsContent value="status">
-                                        <div className="flex items-center space-x-2">
-                                            <Label htmlFor="airplane-mode">
-                                                多规则
-                                            </Label>
-                                            <Switch id="airplane-mode" />
-                                            <Label htmlFor="airplane-mode">
-                                                支持多规则
-                                            </Label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <Label htmlFor="airplane-mode">
-                                                自动刷新
-                                            </Label>
-                                            <Switch
-                                                id="airplane-mode"
-                                                defaultChecked={true}
+        // <div className={css.popupContainer}>
+        <Row>
+            <Col span={24}>
+                <div className="mx-6 my-6">
+                    {allowPrivateAccess ? (
+                        <>
+                            {hasProxyServerUrl && hideStarter ? (
+                                <>
+                                    <Tabs
+                                        defaultValue="rule"
+                                        className="w-[400px]"
+                                    >
+                                        <TabsList className="grid w-full grid-cols-3">
+                                            <TabsTrigger
+                                                value="rule"
+                                                className="data-[state=active]:bg-white"
+                                            >
+                                                规则管理
+                                            </TabsTrigger>
+                                            <TabsTrigger
+                                                value="blackList"
+                                                className="data-[state=active]:bg-white"
+                                            >
+                                                黑名单设置
+                                            </TabsTrigger>
+                                            <TabsTrigger
+                                                value="status"
+                                                className="data-[state=active]:bg-white"
+                                            >
+                                                状态设置
+                                            </TabsTrigger>
+                                        </TabsList>
+                                        <TabsContent value="rule">
+                                            <RulePanel
+                                                url={proxyServerUrl}
+                                                whistleData={whistleData}
+                                                refreshData={refreshWhistleData}
                                             />
-                                            <Label htmlFor="airplane-mode">
-                                                启用/停用新规则后自动刷新页面
-                                            </Label>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <Label htmlFor="airplane-mode">
-                                                代理服务器端口
-                                            </Label>
+                                        </TabsContent>
+                                        <TabsContent value="blackList">
+                                            <BlackListPanel />
+                                        </TabsContent>
+                                        <TabsContent value="status">
+                                            <div className="flex items-center space-x-2">
+                                                <Label htmlFor="airplane-mode">
+                                                    多规则
+                                                </Label>
+                                                <Switch
+                                                    size="small"
+                                                    defaultChecked
+                                                />
+                                                <p
+                                                    className={cn(
+                                                        "text-sm text-muted-foreground",
+                                                    )}
+                                                >
+                                                    支持多规则
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <Label htmlFor="airplane-mode">
+                                                    自动刷新
+                                                </Label>
+                                                <Switch
+                                                    size="small"
+                                                    defaultChecked
+                                                />
+                                                <p
+                                                    className={cn(
+                                                        "text-sm text-muted-foreground",
+                                                    )}
+                                                >
+                                                    启用/停用规则后,自动刷新页面
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <Label htmlFor="airplane-mode">
+                                                    代理服务器端口
+                                                </Label>
 
-                                            <p
-                                                className={cn(
-                                                    "text-sm text-muted-foreground",
-                                                )}
-                                            >
-                                                8899
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <Label htmlFor="airplane-mode">
-                                                代理服务器Ipv4
-                                            </Label>
-                                            <p
-                                                className={cn(
-                                                    "text-sm text-muted-foreground",
-                                                )}
-                                            >
-                                                192.168.0.1
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <Button
-                                                type="submit"
-                                                onClick={() => {
-                                                    setHideStarter(false);
-                                                }}
-                                            >
-                                                更换代理地址
-                                            </Button>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <Button
-                                                type="submit"
-                                                onClick={() => {
-                                                    setHideStarter(false);
-                                                }}
-                                            >
-                                                点击设置快捷键
-                                            </Button>
-                                        </div>
-                                        <div className="flex items-center space-x-2">
-                                            <Button
-                                                type="submit"
-                                                onClick={() => {
-                                                    jumpToWhistle();
-                                                }}
-                                            >
-                                                更多设置
-                                            </Button>
-                                        </div>
-                                    </TabsContent>
-                                </Tabs>
+                                                <p
+                                                    className={cn(
+                                                        "text-sm text-muted-foreground",
+                                                    )}
+                                                >
+                                                    8899
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <Label htmlFor="airplane-mode">
+                                                    代理服务器Ipv4
+                                                </Label>
+                                                <p
+                                                    className={cn(
+                                                        "text-sm text-muted-foreground",
+                                                    )}
+                                                >
+                                                    192.168.0.1
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <Button
+                                                    type="submit"
+                                                    onClick={() => {
+                                                        setHideStarter(false);
+                                                    }}
+                                                >
+                                                    更换代理地址
+                                                </Button>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <Button
+                                                    type="submit"
+                                                    onClick={() => {
+                                                        setHideStarter(false);
+                                                    }}
+                                                >
+                                                    点击设置快捷键
+                                                </Button>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <Button
+                                                    type="submit"
+                                                    onClick={() => {
+                                                        jumpToWhistle();
+                                                    }}
+                                                >
+                                                    更多设置
+                                                </Button>
+                                            </div>
+                                        </TabsContent>
+                                    </Tabs>
 
-                                <hr />
-                                <Scroller
-                                    onClickScrollTop={() => {
-                                        getProxyServerUrl().then((res: any) => {
+                                    <hr />
+                                    <Scroller
+                                        onClickScrollTop={() => {
+                                            getProxyServerUrl().then(
+                                                (res: any) => {
+                                                    browser.proxy.settings.set({
+                                                        value: {
+                                                            proxyType: "manual",
+                                                            http: `${res}`,
+                                                        },
+                                                    });
+                                                },
+                                            );
+                                        }}
+                                        onClickScrollBottom={() => {
                                             browser.proxy.settings.set({
                                                 value: {
-                                                    proxyType: "manual",
-                                                    http: `${res}`,
+                                                    proxyType: "system",
                                                 },
                                             });
-                                        });
-                                    }}
-                                    onClickScrollBottom={() => {
-                                        browser.proxy.settings.set({
-                                            value: {
-                                                proxyType: "system",
-                                            },
-                                        });
-                                    }}
-                                />
-                            </>
-                        ) : (
-                            <div className="grid w-full max-w-sm items-center gap-1.5">
-                                <Label htmlFor="email">
-                                    设置Whistle代理地址
-                                </Label>
-                                <Input
-                                    type="text"
-                                    defaultValue={proxyServerUrl}
-                                    placeholder="http://127.0.0.1:8899"
-                                    onInput={(str) => {
-                                        proxyServerUrlRef.current =
-                                            str.target.value;
-                                    }}
-                                />
-                                <p
-                                    className={cn(
-                                        "text-sm text-muted-foreground",
-                                    )}
-                                >
-                                    加载失败，请确认whistle已经启动（若设置了密码，请确保在浏览器中已经打开并登录）且下面的地址是正确的（若不正确，输入正确的地址）
-                                </p>
-                                <Button
-                                    type="submit"
-                                    onClick={saveProxyServerUrl}
-                                >
-                                    保存配置
-                                </Button>
-                            </div>
-                        )}
-                    </>
-                ) : (
-                    <div>
-                        <h1>请允许在隐私模式下运行</h1>
-                    </div>
-                )}
-            </div>
-        </div>
+                                        }}
+                                    />
+                                </>
+                            ) : (
+                                <div className="grid w-full max-w-sm items-center gap-1.5">
+                                    <Label htmlFor="email">
+                                        设置Whistle代理地址
+                                    </Label>
+                                    <Input
+                                        type="text"
+                                        defaultValue={proxyServerUrl}
+                                        placeholder="http://127.0.0.1:8899"
+                                        onInput={(str) => {
+                                            proxyServerUrlRef.current =
+                                                //@ts-ignore
+                                                str.target.value;
+                                        }}
+                                    />
+                                    <p
+                                        className={cn(
+                                            "text-sm text-muted-foreground",
+                                        )}
+                                    >
+                                        加载失败，请确认whistle已经启动（若设置了密码，请确保在浏览器中已经打开并登录）且下面的地址是正确的（若不正确，输入正确的地址）
+                                    </p>
+                                    <Button
+                                        type="submit"
+                                        onClick={saveProxyServerUrl}
+                                    >
+                                        保存配置
+                                    </Button>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <Alert
+                            message="请允许在隐私模式下运行"
+                            type="error"
+                            showIcon
+                        />
+                    )}
+                </div>
+            </Col>
+        </Row>
+        // </div>
     );
 };
 
