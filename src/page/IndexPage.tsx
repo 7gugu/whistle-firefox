@@ -31,6 +31,7 @@ const IndexPage: React.FC = () => {
     const proxyServerUrlRef = useRef<string>("");
     const [hideStarter, setHideStarter] = useState<boolean>(true);
     const [whistleData, setWhistleData] = useState<any>({});
+    const [proxyStatus, setProxyStatus] = useState<boolean>(false);
 
     const jumpToWhistle = () => {
         getProxyServerUrl().then((res: any) => {
@@ -39,6 +40,7 @@ const IndexPage: React.FC = () => {
             });
         });
     };
+
     const checkHasProxyServerUrl = () => {
         return getProxyServerUrl();
     };
@@ -81,6 +83,24 @@ const IndexPage: React.FC = () => {
     const refreshWhistleData = () => {
         getInitInfo({ url: proxyServerUrl }).then((res) => {
             setWhistleData(res);
+            const activeRules =
+                res.rules.list.filter((rule: any) => rule.selected).length +
+                (res.rules.defaultRulesIsDisabled ? 0 : 1);
+            browser.runtime.sendMessage({ activeRules });
+        });
+        checkProxyStatus();
+    };
+
+    const checkProxyStatus = () => {
+        browser.proxy.settings.get({}).then((res) => {
+            const {
+                value: { proxyType },
+            } = res;
+            if (proxyType === "manual") {
+                setProxyStatus(true);
+            } else {
+                setProxyStatus(false);
+            }
         });
     };
 
@@ -95,11 +115,14 @@ const IndexPage: React.FC = () => {
             setProxyServerUrl(res);
             setHideStarter(!!res);
         });
+        // 检查是否启用代理
+        checkProxyStatus();
     }, []);
 
     useEffect(() => {
         browser.proxy.settings.onChange.addListener((details) => {
             console.log(`New proxy settings: ${JSON.stringify(details.value)}`);
+            checkProxyStatus();
         });
         return () => {
             browser.proxy.settings.onChange.removeListener((details) => {
@@ -116,7 +139,7 @@ const IndexPage: React.FC = () => {
                 // 初始化获取whistle配置
                 getInitInfo({ url: res })
                     .then((res) => {
-                        console.info(res);
+                        console.info("getInitInfo>>", res);
                         setWhistleData(res);
                         // 可用就记录规则名称/分组名称 以及规则数量和规则状态
                         // 记录IPv4地址
@@ -126,13 +149,6 @@ const IndexPage: React.FC = () => {
                                 .length +
                             (res.rules.defaultRulesIsDisabled ? 0 : 1);
                         browser.runtime.sendMessage({ activeRules });
-
-                        console.info(
-                            activeRules,
-                            res.rules.defaultRulesIsDisabled ? 0 : 1,
-                            res.rules.list.filter((rule: any) => rule.selected)
-                                .length,
-                        );
                     })
                     .catch((err) => {
                         // 服务器不可用就自动引导到设置页面
@@ -149,9 +165,7 @@ const IndexPage: React.FC = () => {
             });
     }, [allowPrivateAccess]);
 
-    // Renders the component tree
     return (
-        // <div className={css.popupContainer}>
         <Row>
             <Col span={24}>
                 <div className="mx-6 my-6">
@@ -200,7 +214,11 @@ const IndexPage: React.FC = () => {
                                                 </Label>
                                                 <Switch
                                                     size="small"
-                                                    defaultChecked
+                                                    checked={
+                                                        whistleData?.rules
+                                                            ?.allowMultipleChoice
+                                                    }
+                                                    onClick={() => {}}
                                                 />
                                                 <p
                                                     className={cn(
@@ -236,7 +254,7 @@ const IndexPage: React.FC = () => {
                                                         "text-sm text-muted-foreground",
                                                     )}
                                                 >
-                                                    8899
+                                                    {whistleData?.server?.port}
                                                 </p>
                                             </div>
                                             <div className="flex items-center space-x-2">
@@ -248,7 +266,11 @@ const IndexPage: React.FC = () => {
                                                         "text-sm text-muted-foreground",
                                                     )}
                                                 >
-                                                    192.168.0.1
+                                                    {whistleData?.server?.ipv4?.map(
+                                                        (v: string) => {
+                                                            return `${v} `;
+                                                        },
+                                                    )}
                                                 </p>
                                             </div>
                                             <div className="flex items-center space-x-2">
@@ -265,7 +287,7 @@ const IndexPage: React.FC = () => {
                                                 <Button
                                                     type="submit"
                                                     onClick={() => {
-                                                        setHideStarter(false);
+                                                        
                                                     }}
                                                 >
                                                     点击设置快捷键
@@ -285,25 +307,34 @@ const IndexPage: React.FC = () => {
                                     </Tabs>
 
                                     <hr />
-                                    <Scroller
-                                        onClickScrollTop={() => {
-                                            getProxyServerUrl().then(
-                                                (res: any) => {
-                                                    browser.proxy.settings.set({
-                                                        value: {
-                                                            proxyType: "manual",
-                                                            http: `${res}`,
-                                                        },
-                                                    });
-                                                },
-                                            );
-                                        }}
-                                        onClickScrollBottom={() => {
-                                            browser.proxy.settings.set({
-                                                value: {
-                                                    proxyType: "system",
-                                                },
-                                            });
+                                    <Label htmlFor="airplane-mode">
+                                        设置代理服务
+                                    </Label>
+                                    <Switch
+                                        size="small"
+                                        checked={proxyStatus}
+                                        onClick={() => {
+                                            if (proxyStatus) {
+                                                browser.proxy.settings.set({
+                                                    value: {
+                                                        proxyType: "system",
+                                                    },
+                                                });
+                                            } else {
+                                                getProxyServerUrl().then(
+                                                    (res: any) => {
+                                                        browser.proxy.settings.set(
+                                                            {
+                                                                value: {
+                                                                    proxyType:
+                                                                        "manual",
+                                                                    http: `${res}`,
+                                                                },
+                                                            },
+                                                        );
+                                                    },
+                                                );
+                                            }
                                         }}
                                     />
                                 </>
@@ -318,7 +349,7 @@ const IndexPage: React.FC = () => {
                                         placeholder="http://127.0.0.1:8899"
                                         onInput={(str) => {
                                             proxyServerUrlRef.current =
-                                                //@ts-ignore
+                                                // @ts-ignore
                                                 str.target.value;
                                         }}
                                     />
@@ -348,7 +379,6 @@ const IndexPage: React.FC = () => {
                 </div>
             </Col>
         </Row>
-        // </div>
     );
 };
 

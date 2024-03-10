@@ -133,8 +133,8 @@ export function setDefaultRuleDisable(params: {
     );
 }
 
-// async setAllowMultipleChoice(t) {
-//   return await fetch(`${await q()}/cgi-bin/rules/allow-multiple-choice`, {
+// export function setAllowMultipleChoice(t) {
+//   return fetch(`${url}/cgi-bin/rules/allow-multiple-choice`, {
 //     method: "post",
 //     headers: {
 //       Accept: "application/json",

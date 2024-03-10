@@ -18,9 +18,7 @@ const RulePanel: React.FC<RulePanelProps> = (props: RulePanelProps) => {
     if (!whistleData || !whistleData.rules) return null;
     const { rules } = whistleData;
     const { defaultRulesIsDisabled, defaultRules } = rules;
-    console.info(rules);
     const switchRender = (rule: any) => {
-        console.info(">>", rule.index, defaultRulesIsDisabled, rule);
         return (
             <Switch
                 size="small"
@@ -32,7 +30,8 @@ const RulePanel: React.FC<RulePanelProps> = (props: RulePanelProps) => {
                         clientId: whistleData.clientId,
                         rule,
                     };
-                    if (rule.index === 0) {
+
+                    if (rule.index === -1) {
                         rule.selected
                             ? setDefaultRuleDisable(params)
                             : setDefaultRuleEnable(params);
@@ -55,7 +54,7 @@ const RulePanel: React.FC<RulePanelProps> = (props: RulePanelProps) => {
         children: [],
         extra: switchRender({
             data: defaultRules,
-            index: 0,
+            index: -1,
             name: "default",
             selected: !defaultRulesIsDisabled,
         }),
@@ -95,7 +94,6 @@ const RulePanel: React.FC<RulePanelProps> = (props: RulePanelProps) => {
         const items = value.children;
         if (value.children.length > 0) {
             const activeItems = items.filter((v: any) => {
-                console.info(v);
                 return v.selected;
             });
             value.label = `${value.label} (${activeItems.length}/${items.length})`;

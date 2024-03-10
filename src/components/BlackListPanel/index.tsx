@@ -17,7 +17,7 @@ const BlackListPanel: React.FC = () => {
     const savePassThrough = () => {
         setStorage(WHISTLE_LOCAL_PROXY_PASSTHROUGH_KEY, passThrough);
         getStorage(WHISTLE_LOCAL_PROXY_PASSTHROUGH_KEY).then((res: any) => {
-            console.info(res);
+            // console.info(res);
         });
     };
     // Renders the component tree
