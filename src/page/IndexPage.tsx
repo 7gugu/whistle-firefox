@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import browser from "webextension-polyfill";
-import { Scroller } from "@src/components/scroller";
 import {
     Tabs,
     TabsContent,
@@ -9,8 +8,11 @@ import {
 } from "@src/components/ui/tabs";
 
 import { Input } from "@src/components/ui/input";
-import { WHISTLE_LOCAL_PROXY_URI_KEY } from "@src/constants";
-import { getInitInfo } from "@src/api/fetchWhistleData";
+import {
+    WHISTLE_AUTO_REFRESH_KEY,
+    WHISTLE_LOCAL_PROXY_URI_KEY,
+} from "@src/constants";
+import { getInitInfo, setAllowMultipleChoice } from "@src/api/fetchWhistleData";
 import {
     getStorage,
     checkAllowPrivateAccess,
@@ -32,6 +34,7 @@ const IndexPage: React.FC = () => {
     const [hideStarter, setHideStarter] = useState<boolean>(true);
     const [whistleData, setWhistleData] = useState<any>({});
     const [proxyStatus, setProxyStatus] = useState<boolean>(false);
+    const [autoRefresh, setAutoRefresh] = useState<boolean>(false);
 
     const jumpToWhistle = () => {
         getProxyServerUrl().then((res: any) => {
@@ -80,6 +83,19 @@ const IndexPage: React.FC = () => {
             });
     };
 
+    const getAutoRefresh = () => {
+        return getStorage(WHISTLE_AUTO_REFRESH_KEY)
+            .then((res: any) => {
+                return res[WHISTLE_AUTO_REFRESH_KEY];
+            })
+            .catch(() => {
+                return null;
+            });
+    };
+
+    const saveAutoRefresh = (autoRefresh: any) => {
+        setStorage(WHISTLE_AUTO_REFRESH_KEY, autoRefresh);
+    };
     const refreshWhistleData = () => {
         getInitInfo({ url: proxyServerUrl }).then((res) => {
             setWhistleData(res);
@@ -117,6 +133,10 @@ const IndexPage: React.FC = () => {
         });
         // 检查是否启用代理
         checkProxyStatus();
+        // 初始化自动刷新状态
+        getAutoRefresh().then((res: any) => {
+            setAutoRefresh(!!res);
+        });
     }, []);
 
     useEffect(() => {
@@ -218,7 +238,19 @@ const IndexPage: React.FC = () => {
                                                         whistleData?.rules
                                                             ?.allowMultipleChoice
                                                     }
-                                                    onClick={() => {}}
+                                                    onClick={() => {
+                                                        setAllowMultipleChoice({
+                                                            url: proxyServerUrl,
+                                                            clientId:
+                                                                whistleData?.clientId,
+                                                            allowMultipleChoice:
+                                                                !whistleData
+                                                                    ?.rules
+                                                                    ?.allowMultipleChoice,
+                                                        }).then(() => {
+                                                            refreshWhistleData();
+                                                        });
+                                                    }}
                                                 />
                                                 <p
                                                     className={cn(
@@ -234,7 +266,15 @@ const IndexPage: React.FC = () => {
                                                 </Label>
                                                 <Switch
                                                     size="small"
-                                                    defaultChecked
+                                                    checked={autoRefresh}
+                                                    onClick={() => {
+                                                        setAutoRefresh(
+                                                            !autoRefresh,
+                                                        );
+                                                        saveAutoRefresh(
+                                                            !autoRefresh,
+                                                        );
+                                                    }}
                                                 />
                                                 <p
                                                     className={cn(
@@ -286,9 +326,7 @@ const IndexPage: React.FC = () => {
                                             <div className="flex items-center space-x-2">
                                                 <Button
                                                     type="submit"
-                                                    onClick={() => {
-                                                        
-                                                    }}
+                                                    onClick={() => {}}
                                                 >
                                                     点击设置快捷键
                                                 </Button>

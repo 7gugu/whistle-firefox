@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import browser from "webextension-polyfill";
+import browser, { Tabs } from "webextension-polyfill";
 import { WHISTLE_DEFAULT_PROXY_URI } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
@@ -82,3 +82,33 @@ export async function checkAllowPrivateAccess(): Promise<boolean> {
 export function refreshPage() {
     browser.runtime.reload();
 }
+
+export const refreshWebPage = () => {
+    browser.tabs
+        .query({ active: true, currentWindow: true })
+        .then((tabs: Tabs.Tab[]) => {
+            // Pulls current tab from browser.tabs.query response
+            const currentTab: Tabs.Tab | number = tabs[0];
+
+            // Short circuits function execution is current tab isn't found
+            if (!currentTab) {
+                return;
+            }
+            const currentTabId: number = currentTab.id as number;
+
+            // Executes the script in the current tab
+            browser.scripting
+                .executeScript({
+                    target: {
+                        tabId: currentTabId,
+                    },
+                    func: () => {
+                        window.location.reload();
+                    },
+                    args: [],
+                })
+                .then(() => {
+                    console.log("Done Scrolling");
+                });
+        });
+};

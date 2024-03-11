@@ -6,6 +6,8 @@ import {
     setRuleDisable,
     setRuleEnable,
 } from "@src/api/fetchWhistleData";
+import { getStorage, refreshWebPage } from "../../utils";
+import { WHISTLE_AUTO_REFRESH_KEY } from "@src/constants";
 
 export interface RulePanelProps {
     url: string;
@@ -16,6 +18,23 @@ export interface RulePanelProps {
 const RulePanel: React.FC<RulePanelProps> = (props: RulePanelProps) => {
     const { whistleData, url, refreshData } = props;
     if (!whistleData || !whistleData.rules) return null;
+    const [autoRefresh, setAutoRefresh] = useState(false);
+    const getAutoRefresh = () => {
+        return getStorage(WHISTLE_AUTO_REFRESH_KEY)
+            .then((res: any) => {
+                return res[WHISTLE_AUTO_REFRESH_KEY];
+            })
+            .catch(() => {
+                return null;
+            });
+    };
+
+    useEffect(() => {
+        getAutoRefresh().then((res: any) => {
+            setAutoRefresh(res);
+        });
+    }, [whistleData]);
+
     const { rules } = whistleData;
     const { defaultRulesIsDisabled, defaultRules } = rules;
     const switchRender = (rule: any) => {
@@ -42,6 +61,7 @@ const RulePanel: React.FC<RulePanelProps> = (props: RulePanelProps) => {
                     }
 
                     refreshData();
+                    autoRefresh && refreshWebPage();
                 }}
             />
         );

@@ -1,5 +1,6 @@
 import {
     WHISTLE_INIT_URI,
+    WHISTLE_MULTI_RULES_URI,
     WHISTLE_SELECT_DEFAULT_URI,
     WHISTLE_SELECT_URI,
     WHISTLE_UNSELECT_DEFAULT_URI,
@@ -133,16 +134,21 @@ export function setDefaultRuleDisable(params: {
     );
 }
 
-// export function setAllowMultipleChoice(t) {
-//   return fetch(`${url}/cgi-bin/rules/allow-multiple-choice`, {
-//     method: "post",
-//     headers: {
-//       Accept: "application/json",
-//       "Content-Type": "application/x-www-form-urlencoded"
-//     },
-//     body: Fe.stringify({
-//       clientId: ye,
-//       allowMultipleChoice: t ? 1 : 0
-//     })
-//   });
-// }
+export function setAllowMultipleChoice(params: {
+    url: string;
+    clientId: string;
+    allowMultipleChoice: boolean;
+}) {
+    const { url, clientId, allowMultipleChoice } = params;
+    return fetch(`${url}${WHISTLE_MULTI_RULES_URI}`, {
+        method: "post",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+            clientId,
+            allowMultipleChoice: allowMultipleChoice ? "1" : "0",
+        }),
+    });
+}
