@@ -5,16 +5,16 @@
     "version": "1.0.0",
     "action": {
         "default_icon": {
-            "16": "icon-16.png",
-            "48": "icon-48.png",
-            "128": "icon-128.png"
+            "16": "unactive@16.png",
+            "48": "unactive@48.png",
+            "128": "unactive@128.png"
         },
         "default_popup": "popup.html"
     },
     "icons": {
-        "16": "icon-16.png",
-        "48": "icon-48.png",
-        "128": "icon-128.png"
+        "16": "active@16.png",
+        "48": "active@48.png",
+        "128": "active@128.png"
     },
     "background": {
         "scripts": ["js/backgroundPage.js"]

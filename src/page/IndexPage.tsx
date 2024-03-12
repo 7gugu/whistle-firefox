@@ -23,7 +23,8 @@ import { Button } from "@src/components/ui/button";
 import { Label } from "@src/components/ui/label";
 import BlackListPanel from "@src/components/BlackListPanel";
 import RulePanel from "@src/components/RulePanel";
-import { Alert, Col, Row, Switch } from "antd";
+import { Alert, Col, Row, Switch, Button as AntdButton } from "antd";
+import CopyOutlined from "@ant-design/icons/lib/icons/CopyOutlined";
 
 const IndexPage: React.FC = () => {
     const [allowPrivateAccess, setAllowPrivateAccess] =
@@ -114,8 +115,22 @@ const IndexPage: React.FC = () => {
             } = res;
             if (proxyType === "manual") {
                 setProxyStatus(true);
+                browser.action.setIcon({
+                    path: {
+                        "16": "active@16.png",
+                        "48": "active@48.png",
+                        "128": "active@128.png",
+                    },
+                });
             } else {
                 setProxyStatus(false);
+                browser.action.setIcon({
+                    path: {
+                        "16": "unactive@16.png",
+                        "48": "unactive@48.png",
+                        "128": "unactive@128.png",
+                    },
+                });
             }
         });
     };
@@ -308,7 +323,28 @@ const IndexPage: React.FC = () => {
                                                 >
                                                     {whistleData?.server?.ipv4?.map(
                                                         (v: string) => {
-                                                            return `${v} `;
+                                                            return (
+                                                                <>
+                                                                    {v}
+                                                                    <AntdButton
+                                                                        type="link"
+                                                                        size={
+                                                                            "small"
+                                                                        }
+                                                                        onClick={() => {
+                                                                            navigator?.clipboard?.writeText(
+                                                                                v,
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <CopyOutlined
+                                                                            rev={
+                                                                                undefined
+                                                                            }
+                                                                        />
+                                                                    </AntdButton>
+                                                                </>
+                                                            );
                                                         },
                                                     )}
                                                 </p>

@@ -73,6 +73,7 @@
         "webpack-merge": "^5.8.0"
     },
     "dependencies": {
+        "@ant-design/icons": "^5.3.1",
         "@hookform/resolvers": "^3.3.4",
         "@radix-ui/react-accordion": "^1.1.2",
         "@radix-ui/react-label": "^2.0.2",
