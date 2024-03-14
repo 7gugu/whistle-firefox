@@ -27,6 +27,7 @@
         "scripting",
         "proxy",
         "storage",
-        "notifications"
+        "notifications",
+        "contextMenus"
     ]
 }

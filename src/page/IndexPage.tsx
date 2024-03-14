@@ -18,6 +18,7 @@ import {
     checkAllowPrivateAccess,
     cn,
     setStorage,
+    refreshWebPage,
 } from "@src/utils";
 import { Button } from "@src/components/ui/button";
 import { Label } from "@src/components/ui/label";
@@ -150,7 +151,7 @@ const IndexPage: React.FC = () => {
         checkProxyStatus();
         // 初始化自动刷新状态
         getAutoRefresh().then((res: any) => {
-            setAutoRefresh(!!res);
+            setAutoRefresh(res);
         });
     }, []);
 
@@ -158,6 +159,10 @@ const IndexPage: React.FC = () => {
         browser.proxy.settings.onChange.addListener((details) => {
             console.log(`New proxy settings: ${JSON.stringify(details.value)}`);
             checkProxyStatus();
+            console.info(autoRefresh);
+            getAutoRefresh().then((res: any) => {
+                res && refreshWebPage();
+            });
         });
         return () => {
             browser.proxy.settings.onChange.removeListener((details) => {
@@ -357,14 +362,6 @@ const IndexPage: React.FC = () => {
                                                     }}
                                                 >
                                                     更换代理地址
-                                                </Button>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Button
-                                                    type="submit"
-                                                    onClick={() => {}}
-                                                >
-                                                    点击设置快捷键
                                                 </Button>
                                             </div>
                                             <div className="flex items-center space-x-2">
