@@ -1,7 +1,11 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import browser, { Tabs } from "webextension-polyfill";
-import { WHISTLE_DEFAULT_PROXY_URI } from "./constants";
+import {
+    WHISTLE_AUTO_REFRESH_KEY,
+    WHISTLE_DEFAULT_PROXY_URI,
+    WHISTLE_LOCAL_PROXY_URI_KEY,
+} from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -110,5 +114,25 @@ export const refreshWebPage = () => {
                 .then(() => {
                     console.log("Done Scrolling");
                 });
+        });
+};
+
+export const getProxyServerUrl = () => {
+    return getStorage(WHISTLE_LOCAL_PROXY_URI_KEY)
+        .then((res: any) => {
+            return res[WHISTLE_LOCAL_PROXY_URI_KEY];
+        })
+        .catch(() => {
+            return null;
+        });
+};
+
+export const getAutoRefresh = () => {
+    return getStorage(WHISTLE_AUTO_REFRESH_KEY)
+        .then((res: any) => {
+            return res[WHISTLE_AUTO_REFRESH_KEY];
+        })
+        .catch(() => {
+            return null;
         });
 };

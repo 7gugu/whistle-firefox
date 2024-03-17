@@ -9,6 +9,7 @@ import {
 
 /**
  * 获取whistle配置
+ * @params {string} url - whistle配置地址
  * @returns {string}
  */
 export function getInitInfo(params: { url: string }) {
@@ -20,6 +21,10 @@ export function getInitInfo(params: { url: string }) {
 
 /**
  * 启用规则
+ * @params {string} url - whistle配置地址
+ * @params {string} clientId - 客户端ID
+ * @params {object} rule - 规则
+ * @returns {Promise<any>}
  */
 export function setRuleEnable(params: {
     url: string;
@@ -49,6 +54,10 @@ export function setRuleEnable(params: {
 
 /**
  * 禁用规则
+ * @params {string} url - whistle配置地址
+ * @params {string} clientId - 客户端ID
+ * @params {object} rule - 规则
+ * @returns {Promise<any>}
  */
 export function setRuleDisable(params: {
     url: string;
@@ -76,6 +85,13 @@ export function setRuleDisable(params: {
     }).then((res) => res.json());
 }
 
+/**
+ * 启用默认规则
+ * @params {string} url - whistle配置地址
+ * @params {string} clientId - 客户端ID
+ * @params {object} rule - 规则
+ * @returns {Promise<any>}
+ */
 export function setDefaultRuleEnable(params: {
     url: string;
     clientId: string;
@@ -105,6 +121,13 @@ export function setDefaultRuleEnable(params: {
     );
 }
 
+/**
+ * 禁用默认规则
+ * @params {string} url - whistle配置地址
+ * @params {string} clientId - 客户端ID
+ * @params {object} rule - 规则
+ * @returns {Promise<any>}
+ */
 export function setDefaultRuleDisable(params: {
     url: string;
     clientId: string;
@@ -134,6 +157,13 @@ export function setDefaultRuleDisable(params: {
     );
 }
 
+/**
+ * 设置是否允许多选规则
+ * @params {string} url - whistle配置地址
+ * @params {string} clientId - 客户端ID
+ * @params {boolean} allowMultipleChoice - 是否允许多选
+ * @returns {Promise<any>}
+ */
 export function setAllowMultipleChoice(params: {
     url: string;
     clientId: string;

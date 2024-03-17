@@ -1,42 +1,42 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Collapse, CollapseProps, Switch } from "antd";
+import React, { useEffect, useState } from "react";
+import { Collapse, Switch } from "antd";
 import {
     setDefaultRuleDisable,
     setDefaultRuleEnable,
     setRuleDisable,
     setRuleEnable,
 } from "@src/api/fetchWhistleData";
-import { getStorage, refreshWebPage } from "../../utils";
-import { WHISTLE_AUTO_REFRESH_KEY } from "@src/constants";
+import { getAutoRefresh, refreshWebPage } from "../../utils";
+import { getProxyServerUrl } from "@src/utils";
 
 export interface RulePanelProps {
-    url: string;
     whistleData: any;
     refreshData: () => void;
 }
 
 const RulePanel: React.FC<RulePanelProps> = (props: RulePanelProps) => {
-    const { whistleData, url, refreshData } = props;
-    if (!whistleData || !whistleData.rules) return null;
-    const [autoRefresh, setAutoRefresh] = useState(false);
-    const getAutoRefresh = () => {
-        return getStorage(WHISTLE_AUTO_REFRESH_KEY)
-            .then((res: any) => {
-                return res[WHISTLE_AUTO_REFRESH_KEY];
-            })
-            .catch(() => {
-                return null;
-            });
-    };
+    const { whistleData, refreshData } = props;
 
-    useEffect(() => {
-        getAutoRefresh().then((res: any) => {
-            setAutoRefresh(res);
-        });
-    }, [whistleData]);
+    if (!whistleData || !whistleData.rules) return null;
 
     const { rules } = whistleData;
     const { defaultRulesIsDisabled, defaultRules } = rules;
+
+    const [autoRefresh, setAutoRefresh] = useState(false);
+    const [proxyServerUrl, setProxyServerUrl] = useState("");
+
+    useEffect(() => {
+        // 获取自动刷新开关状态
+        getAutoRefresh().then((res: any) => {
+            setAutoRefresh(res);
+        });
+        // 获取代理服务器地址
+        getProxyServerUrl().then((res: any) => {
+            setProxyServerUrl(res);
+        });
+    }, [whistleData]);
+
+    // 规则开关渲染器
     const switchRender = (rule: any) => {
         return (
             <Switch
@@ -45,7 +45,7 @@ const RulePanel: React.FC<RulePanelProps> = (props: RulePanelProps) => {
                 key={rule.index}
                 onClick={() => {
                     const params = {
-                        url,
+                        url: proxyServerUrl,
                         clientId: whistleData.clientId,
                         rule,
                     };
@@ -81,6 +81,7 @@ const RulePanel: React.FC<RulePanelProps> = (props: RulePanelProps) => {
         showArrow: false,
         selected: !defaultRulesIsDisabled,
     });
+    // 将规则整合成树形结构
     const isGroup = (name: string) => name.includes("\r");
     let groupIndex = 0;
     rules?.list?.map((value: any, index: number) => {

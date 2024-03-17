@@ -9,3 +9,9 @@ export const WHISTLE_UNSELECT_URI = "/cgi-bin/rules/unselect";
 export const WHISTLE_SELECT_DEFAULT_URI = "/cgi-bin/rules/enable-default";
 export const WHISTLE_UNSELECT_DEFAULT_URI = "/cgi-bin/rules/disable-default";
 export const WHISTLE_MULTI_RULES_URI = "/cgi-bin/rules/allow-multiple-choice";
+
+export enum ENUM_WHISTLE_TABS {
+    RULES = "规则管理",
+    BLACKLIST = "黑名单设置",
+    STATUS = "状态设置",
+}

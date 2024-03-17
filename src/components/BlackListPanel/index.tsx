@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import css from "./styles.module.css";
 import { Textarea } from "@src/components/ui/textarea";
 import { Button } from "@src/components/ui/button";
@@ -8,6 +8,7 @@ import { WHISTLE_LOCAL_PROXY_PASSTHROUGH_KEY } from "@src/constants";
 
 const BlackListPanel: React.FC = () => {
     const [passThrough, setPassThrough] = useState<string>("");
+
     useEffect(() => {
         getStorage(WHISTLE_LOCAL_PROXY_PASSTHROUGH_KEY).then((res: any) => {
             setPassThrough(res[WHISTLE_LOCAL_PROXY_PASSTHROUGH_KEY]);
@@ -16,11 +17,8 @@ const BlackListPanel: React.FC = () => {
 
     const savePassThrough = () => {
         setStorage(WHISTLE_LOCAL_PROXY_PASSTHROUGH_KEY, passThrough);
-        getStorage(WHISTLE_LOCAL_PROXY_PASSTHROUGH_KEY).then((res: any) => {
-            // console.info(res);
-        });
     };
-    // Renders the component tree
+
     return (
         <div className={css.popupContainer}>
             <div className="mx-4 my-4">

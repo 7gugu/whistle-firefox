@@ -76,11 +76,6 @@
   }
 }
 
-.tab-trigger[data-state="active"] {
-  background: white;
-  color: slategray
-}
-
-.tab-trigger:focus {
-  background: white;
+body {
+  width: 560px;
 }

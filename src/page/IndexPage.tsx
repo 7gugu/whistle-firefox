@@ -1,18 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import browser from "webextension-polyfill";
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@src/components/ui/tabs";
 
 import { Input } from "@src/components/ui/input";
 import {
+    ENUM_WHISTLE_TABS,
     WHISTLE_AUTO_REFRESH_KEY,
     WHISTLE_LOCAL_PROXY_URI_KEY,
 } from "@src/constants";
-import { getInitInfo, setAllowMultipleChoice } from "@src/api/fetchWhistleData";
+import { getInitInfo } from "@src/api/fetchWhistleData";
 import {
     getStorage,
     checkAllowPrivateAccess,
@@ -24,8 +19,9 @@ import { Button } from "@src/components/ui/button";
 import { Label } from "@src/components/ui/label";
 import BlackListPanel from "@src/components/BlackListPanel";
 import RulePanel from "@src/components/RulePanel";
-import { Alert, Col, Row, Switch, Button as AntdButton } from "antd";
-import CopyOutlined from "@ant-design/icons/lib/icons/CopyOutlined";
+import { Alert, Col, Row, Switch, Segmented } from "antd";
+import { getProxyServerUrl } from "@src/utils";
+import StatusPanel from "@src/components/StatusPanel";
 
 const IndexPage: React.FC = () => {
     const [allowPrivateAccess, setAllowPrivateAccess] =
@@ -37,27 +33,10 @@ const IndexPage: React.FC = () => {
     const [whistleData, setWhistleData] = useState<any>({});
     const [proxyStatus, setProxyStatus] = useState<boolean>(false);
     const [autoRefresh, setAutoRefresh] = useState<boolean>(false);
-
-    const jumpToWhistle = () => {
-        getProxyServerUrl().then((res: any) => {
-            browser.tabs.create({
-                url: res.indexOf("http://") >= 0 ? res : `http://${res}`,
-            });
-        });
-    };
+    const [tabIndex, setTabIndex] = useState<string>(ENUM_WHISTLE_TABS.RULES);
 
     const checkHasProxyServerUrl = () => {
         return getProxyServerUrl();
-    };
-
-    const getProxyServerUrl = () => {
-        return getStorage(WHISTLE_LOCAL_PROXY_URI_KEY)
-            .then((res: any) => {
-                return res[WHISTLE_LOCAL_PROXY_URI_KEY];
-            })
-            .catch(() => {
-                return null;
-            });
     };
 
     const saveProxyServerUrl = () => {
@@ -95,9 +74,6 @@ const IndexPage: React.FC = () => {
             });
     };
 
-    const saveAutoRefresh = (autoRefresh: any) => {
-        setStorage(WHISTLE_AUTO_REFRESH_KEY, autoRefresh);
-    };
     const refreshWhistleData = () => {
         getInitInfo({ url: proxyServerUrl }).then((res) => {
             setWhistleData(res);
@@ -213,170 +189,34 @@ const IndexPage: React.FC = () => {
                         <>
                             {hasProxyServerUrl && hideStarter ? (
                                 <>
-                                    <Tabs
-                                        defaultValue="rule"
-                                        className="w-[400px]"
-                                    >
-                                        <TabsList className="grid w-full grid-cols-3">
-                                            <TabsTrigger
-                                                value="rule"
-                                                className="data-[state=active]:bg-white"
-                                            >
-                                                规则管理
-                                            </TabsTrigger>
-                                            <TabsTrigger
-                                                value="blackList"
-                                                className="data-[state=active]:bg-white"
-                                            >
-                                                黑名单设置
-                                            </TabsTrigger>
-                                            <TabsTrigger
-                                                value="status"
-                                                className="data-[state=active]:bg-white"
-                                            >
-                                                状态设置
-                                            </TabsTrigger>
-                                        </TabsList>
-                                        <TabsContent value="rule">
-                                            <RulePanel
-                                                url={proxyServerUrl}
-                                                whistleData={whistleData}
-                                                refreshData={refreshWhistleData}
-                                            />
-                                        </TabsContent>
-                                        <TabsContent value="blackList">
-                                            <BlackListPanel />
-                                        </TabsContent>
-                                        <TabsContent value="status">
-                                            <div className="flex items-center space-x-2">
-                                                <Label htmlFor="airplane-mode">
-                                                    多规则
-                                                </Label>
-                                                <Switch
-                                                    size="small"
-                                                    checked={
-                                                        whistleData?.rules
-                                                            ?.allowMultipleChoice
-                                                    }
-                                                    onClick={() => {
-                                                        setAllowMultipleChoice({
-                                                            url: proxyServerUrl,
-                                                            clientId:
-                                                                whistleData?.clientId,
-                                                            allowMultipleChoice:
-                                                                !whistleData
-                                                                    ?.rules
-                                                                    ?.allowMultipleChoice,
-                                                        }).then(() => {
-                                                            refreshWhistleData();
-                                                        });
-                                                    }}
-                                                />
-                                                <p
-                                                    className={cn(
-                                                        "text-sm text-muted-foreground",
-                                                    )}
-                                                >
-                                                    支持多规则
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Label htmlFor="airplane-mode">
-                                                    自动刷新
-                                                </Label>
-                                                <Switch
-                                                    size="small"
-                                                    checked={autoRefresh}
-                                                    onClick={() => {
-                                                        setAutoRefresh(
-                                                            !autoRefresh,
-                                                        );
-                                                        saveAutoRefresh(
-                                                            !autoRefresh,
-                                                        );
-                                                    }}
-                                                />
-                                                <p
-                                                    className={cn(
-                                                        "text-sm text-muted-foreground",
-                                                    )}
-                                                >
-                                                    启用/停用规则后,自动刷新页面
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Label htmlFor="airplane-mode">
-                                                    代理服务器端口
-                                                </Label>
-
-                                                <p
-                                                    className={cn(
-                                                        "text-sm text-muted-foreground",
-                                                    )}
-                                                >
-                                                    {whistleData?.server?.port}
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Label htmlFor="airplane-mode">
-                                                    代理服务器Ipv4
-                                                </Label>
-                                                <p
-                                                    className={cn(
-                                                        "text-sm text-muted-foreground",
-                                                    )}
-                                                >
-                                                    {whistleData?.server?.ipv4?.map(
-                                                        (v: string) => {
-                                                            return (
-                                                                <>
-                                                                    {v}
-                                                                    <AntdButton
-                                                                        type="link"
-                                                                        size={
-                                                                            "small"
-                                                                        }
-                                                                        onClick={() => {
-                                                                            navigator?.clipboard?.writeText(
-                                                                                v,
-                                                                            );
-                                                                        }}
-                                                                    >
-                                                                        <CopyOutlined
-                                                                            rev={
-                                                                                undefined
-                                                                            }
-                                                                        />
-                                                                    </AntdButton>
-                                                                </>
-                                                            );
-                                                        },
-                                                    )}
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Button
-                                                    type="submit"
-                                                    onClick={() => {
-                                                        setHideStarter(false);
-                                                    }}
-                                                >
-                                                    更换代理地址
-                                                </Button>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <Button
-                                                    type="submit"
-                                                    onClick={() => {
-                                                        jumpToWhistle();
-                                                    }}
-                                                >
-                                                    更多设置
-                                                </Button>
-                                            </div>
-                                        </TabsContent>
-                                    </Tabs>
-
+                                    <Segmented
+                                        options={[
+                                            ENUM_WHISTLE_TABS.RULES,
+                                            ENUM_WHISTLE_TABS.BLACKLIST,
+                                            ENUM_WHISTLE_TABS.STATUS,
+                                        ]}
+                                        onChange={(value) => {
+                                            setTabIndex(value);
+                                        }}
+                                        block
+                                    />
+                                    {tabIndex === ENUM_WHISTLE_TABS.RULES ? (
+                                        <RulePanel
+                                            whistleData={whistleData}
+                                            refreshData={refreshWhistleData}
+                                        />
+                                    ) : null}
+                                    {tabIndex ===
+                                    ENUM_WHISTLE_TABS.BLACKLIST ? (
+                                        <BlackListPanel />
+                                    ) : null}
+                                    {tabIndex === ENUM_WHISTLE_TABS.STATUS ? (
+                                        <StatusPanel
+                                            whistleData={whistleData}
+                                            refreshData={refreshWhistleData}
+                                            setHideStarter={setHideStarter}
+                                        />
+                                    ) : null}
                                     <hr />
                                     <Label htmlFor="airplane-mode">
                                         设置代理服务
@@ -420,7 +260,6 @@ const IndexPage: React.FC = () => {
                                         placeholder="http://127.0.0.1:8899"
                                         onInput={(str) => {
                                             proxyServerUrlRef.current =
-                                                // @ts-ignore
                                                 str.target.value;
                                         }}
                                     />
