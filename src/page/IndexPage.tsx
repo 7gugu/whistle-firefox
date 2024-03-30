@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import browser from "webextension-polyfill";
 
-import { Input } from "@src/components/ui/input";
 import {
     ENUM_WHISTLE_TABS,
     WHISTLE_AUTO_REFRESH_KEY,
@@ -15,11 +14,22 @@ import {
     setStorage,
     refreshWebPage,
 } from "@src/utils";
-import { Button } from "@src/components/ui/button";
 import { Label } from "@src/components/ui/label";
 import BlackListPanel from "@src/components/BlackListPanel";
 import RulePanel from "@src/components/RulePanel";
-import { Alert, Col, Row, Switch, Segmented } from "antd";
+import {
+    Alert,
+    Col,
+    Row,
+    Switch,
+    Segmented,
+    Button,
+    Input,
+    Divider,
+    Typography,
+    message,
+} from "antd";
+const { Text } = Typography;
 import { getProxyServerUrl } from "@src/utils";
 import StatusPanel from "@src/components/StatusPanel";
 
@@ -28,13 +38,13 @@ const IndexPage: React.FC = () => {
         useState<boolean>(false);
     const [proxyServerUrl, setProxyServerUrl] = useState<string>("");
     const [hasProxyServerUrl, setHasProxyServerUrl] = useState<boolean>(false);
-    const proxyServerUrlRef = useRef<string>("");
+    const proxyServerUrlRef = useRef<string>(proxyServerUrl);
     const [hideStarter, setHideStarter] = useState<boolean>(true);
     const [whistleData, setWhistleData] = useState<any>({});
     const [proxyStatus, setProxyStatus] = useState<boolean>(false);
     const [autoRefresh, setAutoRefresh] = useState<boolean>(false);
     const [tabIndex, setTabIndex] = useState<string>(ENUM_WHISTLE_TABS.RULES);
-
+    const [messageApi, contextHolder] = message.useMessage();
     const checkHasProxyServerUrl = () => {
         return getProxyServerUrl();
     };
@@ -42,7 +52,11 @@ const IndexPage: React.FC = () => {
     const saveProxyServerUrl = () => {
         const url = proxyServerUrlRef.current;
         if (!url) {
-            // refreshPage();
+            messageApi.open({
+                type: "error",
+                duration: 1000,
+                content: "Please input the proxy server url.",
+            });
             return;
         }
         getInitInfo({ url })
@@ -55,10 +69,21 @@ const IndexPage: React.FC = () => {
                 // 可用就记录规则名称/分组名称 以及规则数量和规则状态
                 // 记录IPv4地址
                 // 记录开关状态
+                messageApi.open({
+                    type: "success",
+                    duration: 1000,
+                    content: "Save Success!",
+                });
             })
             .catch(() => {
                 // 服务器不可用就自动引导到设置页面
                 console.error("whistle server is not available.");
+                messageApi.open({
+                    type: "error",
+                    duration: 1000,
+                    content:
+                        "whistle server is not available, please check the url.",
+                });
                 setHasProxyServerUrl(false);
                 setProxyServerUrl("");
             });
@@ -182,9 +207,14 @@ const IndexPage: React.FC = () => {
     }, [allowPrivateAccess]);
 
     return (
-        <Row>
-            <Col span={24}>
-                <div className="mx-6 my-6">
+        <div
+            style={{
+                width: 320,
+            }}
+        >
+            {contextHolder}
+            <Row>
+                <Col span={24}>
                     {allowPrivateAccess ? (
                         <>
                             {hasProxyServerUrl && hideStarter ? (
@@ -200,83 +230,108 @@ const IndexPage: React.FC = () => {
                                         }}
                                         block
                                     />
-                                    {tabIndex === ENUM_WHISTLE_TABS.RULES ? (
-                                        <RulePanel
-                                            whistleData={whistleData}
-                                            refreshData={refreshWhistleData}
-                                        />
-                                    ) : null}
-                                    {tabIndex ===
-                                    ENUM_WHISTLE_TABS.BLACKLIST ? (
-                                        <BlackListPanel />
-                                    ) : null}
-                                    {tabIndex === ENUM_WHISTLE_TABS.STATUS ? (
-                                        <StatusPanel
-                                            whistleData={whistleData}
-                                            refreshData={refreshWhistleData}
-                                            setHideStarter={setHideStarter}
-                                        />
-                                    ) : null}
-                                    <hr />
-                                    <Label htmlFor="airplane-mode">
-                                        设置代理服务
-                                    </Label>
-                                    <Switch
-                                        size="small"
-                                        checked={proxyStatus}
-                                        onClick={() => {
-                                            if (proxyStatus) {
-                                                browser.proxy.settings.set({
-                                                    value: {
-                                                        proxyType: "system",
-                                                    },
-                                                });
-                                            } else {
-                                                getProxyServerUrl().then(
-                                                    (res: any) => {
-                                                        browser.proxy.settings.set(
-                                                            {
-                                                                value: {
-                                                                    proxyType:
-                                                                        "manual",
-                                                                    http: `${res}`,
-                                                                },
-                                                            },
-                                                        );
-                                                    },
-                                                );
-                                            }
+                                    <div
+                                        style={{
+                                            height: 280,
+                                            margin: 10,
+                                            overflowY: "auto",
                                         }}
-                                    />
+                                    >
+                                        {tabIndex ===
+                                        ENUM_WHISTLE_TABS.RULES ? (
+                                            <RulePanel
+                                                whistleData={whistleData}
+                                                refreshData={refreshWhistleData}
+                                            />
+                                        ) : null}
+                                        {tabIndex ===
+                                        ENUM_WHISTLE_TABS.BLACKLIST ? (
+                                            <BlackListPanel />
+                                        ) : null}
+                                        {tabIndex ===
+                                        ENUM_WHISTLE_TABS.STATUS ? (
+                                            <StatusPanel
+                                                whistleData={whistleData}
+                                                refreshData={refreshWhistleData}
+                                                setHideStarter={setHideStarter}
+                                            />
+                                        ) : null}
+                                    </div>
+                                    <Divider />
+                                    <div
+                                        style={{
+                                            marginLeft: 5,
+                                            marginRight: 10,
+                                        }}
+                                    >
+                                        <Row justify="center">
+                                            <Col span={22}>
+                                                {" "}
+                                                <Label htmlFor="airplane-mode">
+                                                    设置代理服务
+                                                </Label>
+                                            </Col>
+                                            <Col span={2}>
+                                                <Switch
+                                                    size="small"
+                                                    checked={proxyStatus}
+                                                    onClick={() => {
+                                                        if (proxyStatus) {
+                                                            browser.proxy.settings.set(
+                                                                {
+                                                                    value: {
+                                                                        proxyType:
+                                                                            "system",
+                                                                    },
+                                                                },
+                                                            );
+                                                        } else {
+                                                            getProxyServerUrl().then(
+                                                                (res: any) => {
+                                                                    browser.proxy.settings.set(
+                                                                        {
+                                                                            value: {
+                                                                                proxyType:
+                                                                                    "manual",
+                                                                                http: `${res}`,
+                                                                                https: `${res}`,
+                                                                            },
+                                                                        },
+                                                                    );
+                                                                },
+                                                            );
+                                                        }
+                                                    }}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </div>
                                 </>
                             ) : (
-                                <div className="grid w-full max-w-sm items-center gap-1.5">
-                                    <Label htmlFor="email">
-                                        设置Whistle代理地址
-                                    </Label>
-                                    <Input
-                                        type="text"
-                                        defaultValue={proxyServerUrl}
-                                        placeholder="http://127.0.0.1:8899"
-                                        onInput={(str) => {
-                                            proxyServerUrlRef.current =
-                                                str.target.value;
-                                        }}
-                                    />
-                                    <p
-                                        className={cn(
-                                            "text-sm text-muted-foreground",
-                                        )}
-                                    >
-                                        加载失败，请确认whistle已经启动（若设置了密码，请确保在浏览器中已经打开并登录）且下面的地址是正确的（若不正确，输入正确的地址）
-                                    </p>
+                                <>
+                                    <Text strong>设置Whistle代理地址</Text>
+                                    <div style={{ marginBottom: 10 }}>
+                                        <Input
+                                            type="text"
+                                            defaultValue={proxyServerUrl}
+                                            placeholder="http://127.0.0.1:8899"
+                                            onChange={(str) => {
+                                                proxyServerUrlRef.current =
+                                                    str.target.value;
+                                            }}
+                                        />
+                                        <Text type="secondary">
+                                            加载失败，请确认whistle已经启动（若设置了密码，请确保在浏览器中已经打开并登录）且下面的地址是正确的（若不正确，输入正确的地址）
+                                        </Text>
+                                    </div>
+
                                     <Button
-                                        type="submit"
+                                        type="primary"
                                         onClick={saveProxyServerUrl}
                                     >
                                         保存配置
                                     </Button>
-                                </div>
+                                </>
                             )}
                         </>
                     ) : (
@@ -286,9 +341,9 @@ const IndexPage: React.FC = () => {
                             showIcon
                         />
                     )}
-                </div>
-            </Col>
-        </Row>
+                </Col>
+            </Row>
+        </div>
     );
 };
 
