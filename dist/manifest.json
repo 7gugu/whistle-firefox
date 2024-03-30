@@ -2,6 +2,7 @@
     "manifest_version": 3,
     "name": "Whistle-Switcher",
     "description": "A Firefox Extension that can help developer switch whistle proxy easily.",
+    "author": "7gugu",
     "version": "1.0.0",
     "action": {
         "default_icon": {
@@ -29,5 +30,11 @@
         "storage",
         "notifications",
         "contextMenus"
-    ]
+    ],
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "whistleSwicher@7gugu.com",
+            "strict_min_version": "91.1.0"
+        }
+    }
 }
