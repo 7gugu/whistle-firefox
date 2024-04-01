@@ -54,8 +54,8 @@ const IndexPage: React.FC = () => {
         if (!url) {
             messageApi.open({
                 type: "error",
-                duration: 1000,
-                content: "Please input the proxy server url.",
+                duration: 1,
+                content: "请输入正确的whistle代理服务器地址。",
             });
             return;
         }
@@ -71,8 +71,8 @@ const IndexPage: React.FC = () => {
                 // 记录开关状态
                 messageApi.open({
                     type: "success",
-                    duration: 1000,
-                    content: "Save Success!",
+                    duration: 1,
+                    content: "保存成功!",
                 });
             })
             .catch(() => {
@@ -80,9 +80,9 @@ const IndexPage: React.FC = () => {
                 console.error("whistle server is not available.");
                 messageApi.open({
                     type: "error",
-                    duration: 1000,
+                    duration: 1,
                     content:
-                        "whistle server is not available, please check the url.",
+                        "whistle代理服务器不可用，请检查代理服务器地址。",
                 });
                 setHasProxyServerUrl(false);
                 setProxyServerUrl("");
