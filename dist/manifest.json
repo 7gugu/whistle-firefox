@@ -1,9 +1,9 @@
 {
     "manifest_version": 3,
     "name": "Whistle-Switcher",
-    "description": "A Firefox Extension that can help developer switch whistle proxy easily.",
+    "description": "一款帮助开发者快捷切换Whistle代理规则的Firefox拓展插件。",
     "author": "7gugu",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "action": {
         "default_icon": {
             "16": "unactive@16.png",
