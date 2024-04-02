@@ -14,7 +14,6 @@ import {
     setStorage,
     refreshWebPage,
 } from "@src/utils";
-import { Label } from "@src/components/ui/label";
 import BlackListPanel from "@src/components/BlackListPanel";
 import RulePanel from "@src/components/RulePanel";
 import {
@@ -50,7 +49,7 @@ const IndexPage: React.FC = () => {
     };
 
     const saveProxyServerUrl = () => {
-        const url = proxyServerUrlRef.current;
+        const url = proxyServerUrlRef.current || proxyServerUrl;
         if (!url) {
             messageApi.open({
                 type: "error",
@@ -81,8 +80,7 @@ const IndexPage: React.FC = () => {
                 messageApi.open({
                     type: "error",
                     duration: 1,
-                    content:
-                        "whistle代理服务器不可用，请检查代理服务器地址。",
+                    content: "whistle代理服务器不可用，请检查代理服务器地址。",
                 });
                 setHasProxyServerUrl(false);
                 setProxyServerUrl("");
@@ -135,6 +133,26 @@ const IndexPage: React.FC = () => {
                 });
             }
         });
+    };
+
+    const switchProxyStatus = () => {
+        if (proxyStatus) {
+            browser.proxy.settings.set({
+                value: {
+                    proxyType: "system",
+                },
+            });
+        } else {
+            getProxyServerUrl().then((res: any) => {
+                browser.proxy.settings.set({
+                    value: {
+                        proxyType: "manual",
+                        http: `${res}`,
+                        https: `${res}`,
+                    },
+                });
+            });
+        }
     };
 
     useEffect(() => {
@@ -266,42 +284,13 @@ const IndexPage: React.FC = () => {
                                     >
                                         <Row justify="center">
                                             <Col span={22}>
-                                                {" "}
-                                                <Label htmlFor="airplane-mode">
-                                                    设置代理服务
-                                                </Label>
+                                                <Text strong>设置代理服务</Text>
                                             </Col>
                                             <Col span={2}>
                                                 <Switch
                                                     size="small"
                                                     checked={proxyStatus}
-                                                    onClick={() => {
-                                                        if (proxyStatus) {
-                                                            browser.proxy.settings.set(
-                                                                {
-                                                                    value: {
-                                                                        proxyType:
-                                                                            "system",
-                                                                    },
-                                                                },
-                                                            );
-                                                        } else {
-                                                            getProxyServerUrl().then(
-                                                                (res: any) => {
-                                                                    browser.proxy.settings.set(
-                                                                        {
-                                                                            value: {
-                                                                                proxyType:
-                                                                                    "manual",
-                                                                                http: `${res}`,
-                                                                                https: `${res}`,
-                                                                            },
-                                                                        },
-                                                                    );
-                                                                },
-                                                            );
-                                                        }
-                                                    }}
+                                                    onClick={switchProxyStatus}
                                                 />
                                             </Col>
                                         </Row>
