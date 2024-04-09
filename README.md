@@ -39,6 +39,13 @@
 
 [![Mozilla Add-on Version](https://img.shields.io/amo/v/whistle-switcher)](https://addons.mozilla.org/zh-CN/firefox/addon/whistle-switcher/)
 
+## 本地构建
+
+1. 运行 `yarn` 或者 `npm install` 安装环境依赖
+2. 运行 `yarn build` 构建产物
+3. 产物将会生成在项目根目录下的dist文件夹中
+4. 通过Firefox的 `about:debugging` 安装`dist/manifest.json` 即可安装本地构建的addon
+
 ## 联系方式
 
 > 如果有使用问题，可以优先通过邮箱和Firefox评论区提交问题，正常情况下在一个工作日内就会回复。（公共假期不定期回复）
