@@ -1,15 +1,9 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
 import browser, { Tabs } from "webextension-polyfill";
 import {
     WHISTLE_AUTO_REFRESH_KEY,
-    WHISTLE_DEFAULT_PROXY_URI,
     WHISTLE_LOCAL_PROXY_URI_KEY,
 } from "./constants";
 
-export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
 
 export function getStorage(key: string): any {
     try {
@@ -32,36 +26,7 @@ export function setStorage(key: string, value: any) {
  * @param count 已激活的规则数量
  */
 export function setBadge(count: number) {
-    // browser.action.setBadgeBackgroundColor({
-    //     color: "#f0ac58",
-    // });
     browser.action.setBadgeText({ text: count ? count.toString() : "" });
-}
-
-/**
- * 启用浏览器代理
- * @desc 默认使用http://127.0.0.1:8899
- * @param serverUrl
- */
-function setBrowserProxyEnable(serverUrl: string) {
-    browser.proxy.settings.set({
-        value: {
-            proxyType: "manual",
-            http: serverUrl || WHISTLE_DEFAULT_PROXY_URI,
-        },
-    });
-}
-
-/**
- * 禁用浏览器代理
- * @desc 使用系统代理
- */
-function setBrowserProxyDisable() {
-    browser.proxy.settings.set({
-        value: {
-            proxyType: "system",
-        },
-    });
 }
 
 /**
