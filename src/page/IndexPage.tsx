@@ -10,7 +10,6 @@ import { getInitInfo } from "@src/api/fetchWhistleData";
 import {
     getStorage,
     checkAllowPrivateAccess,
-    cn,
     setStorage,
     refreshWebPage,
 } from "@src/utils";
@@ -148,7 +147,7 @@ const IndexPage: React.FC = () => {
                     value: {
                         proxyType: "manual",
                         http: `${res}`,
-                        https: `${res}`,
+                        httpProxyAll: true,
                     },
                 });
             });
