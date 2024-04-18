@@ -72,6 +72,21 @@ const IndexPage: React.FC = () => {
                     duration: 1,
                     content: "保存成功!",
                 });
+                // 如果处理代理状态还需要更新代理服务器地址
+                browser.proxy.settings.get({}).then((res) => {
+                    const {
+                        value: { proxyType },
+                    } = res;
+                    if (proxyType === "manual") {
+                        browser.proxy.settings.set({
+                            value: {
+                                proxyType: "manual",
+                                http: `${url}`,
+                                httpProxyAll: true,
+                            },
+                        });
+                    }
+                });
             })
             .catch(() => {
                 // 服务器不可用就自动引导到设置页面
