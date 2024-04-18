@@ -80,6 +80,7 @@ function switchProxy() {
                 value: {
                     proxyType: "manual",
                     http: `${res}`,
+                    httpProxyAll: true,
                 },
             });
         });
