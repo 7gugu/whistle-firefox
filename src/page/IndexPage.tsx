@@ -47,6 +47,10 @@ const IndexPage: React.FC = () => {
         return getProxyServerUrl();
     };
 
+    /**
+     * 设置代理服务器地址
+     * @returns
+     */
     const saveProxyServerUrl = () => {
         const url = proxyServerUrlRef.current || proxyServerUrl;
         if (!url) {
@@ -101,6 +105,10 @@ const IndexPage: React.FC = () => {
             });
     };
 
+    /**
+     * 获取是否开启自动刷新的键值
+     * @returns
+     */
     const getAutoRefresh = () => {
         return getStorage(WHISTLE_AUTO_REFRESH_KEY)
             .then((res: any) => {
@@ -111,6 +119,9 @@ const IndexPage: React.FC = () => {
             });
     };
 
+    /**
+     * 主动刷新whistle数据
+     */
     const refreshWhistleData = () => {
         getInitInfo({ url: proxyServerUrl }).then((res) => {
             setWhistleData(res);
@@ -122,6 +133,9 @@ const IndexPage: React.FC = () => {
         checkProxyStatus();
     };
 
+    /**
+     * 检查代理状态
+     */
     const checkProxyStatus = () => {
         browser.proxy.settings.get({}).then((res) => {
             const {
@@ -149,6 +163,9 @@ const IndexPage: React.FC = () => {
         });
     };
 
+    /**
+     * 切换代理规则状态
+     */
     const switchProxyStatus = () => {
         if (proxyStatus) {
             browser.proxy.settings.set({
@@ -292,15 +309,39 @@ const IndexPage: React.FC = () => {
                                     <Divider />
                                     <div
                                         style={{
-                                            marginLeft: 5,
                                             marginRight: 10,
                                         }}
                                     >
                                         <Row justify="center">
-                                            <Col span={22}>
+                                            <Col
+                                                span={12}
+                                                style={{
+                                                    paddingLeft: 10,
+                                                    paddingRight: 10,
+                                                }}
+                                            >
+                                                <Button
+                                                    type="primary"
+                                                    block
+                                                    onClick={refreshWebPage}
+                                                >
+                                                    刷新页面
+                                                </Button>
+                                            </Col>
+                                            <Col
+                                                span={10}
+                                                style={{
+                                                    alignContent: "center",
+                                                }}
+                                            >
                                                 <Text strong>设置代理服务</Text>
                                             </Col>
-                                            <Col span={2}>
+                                            <Col
+                                                span={2}
+                                                style={{
+                                                    alignContent: "center",
+                                                }}
+                                            >
                                                 <Switch
                                                     size="small"
                                                     checked={proxyStatus}
