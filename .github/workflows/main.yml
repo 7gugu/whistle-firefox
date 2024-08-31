@@ -61,3 +61,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           TAG_NAME: $MAJOR_VER.$MINOR_VER.${{ github.run_number }}
+          ASSET_PATH: firefox.zip
