@@ -1,3 +1,8 @@
+# Whistle-Firefox🦊
+Firefox平台快速切换Whistle代理规则插件
+
+[![Build and Publish](https://github.com/7gugu/whistle-firefox/actions/workflows/main.yml/badge.svg)](https://github.com/7gugu/whistle-firefox/actions/workflows/main.yml)
+
 ## 什么是Whistle
 
 [whistle](https://github.com/avwo/whistle)(读音[ˈwɪsəl]，拼音[wēisǒu])基于Node实现的跨平台web调试代理工具，类似的工具有Windows平台上的[Fiddler](http://www.telerik.com/fiddler/)，主要用于查看、修改HTTP、HTTPS、Websocket的请求、响应。
