@@ -3,7 +3,7 @@
     "name": "Whistle-Switcher",
     "description": "一款帮助开发者快捷切换Whistle代理规则的Firefox拓展插件。",
     "author": "7gugu",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "action": {
         "default_icon": {
             "16": "unactive@16.png",
