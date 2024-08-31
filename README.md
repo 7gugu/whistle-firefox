@@ -31,7 +31,7 @@
 
 | 规则管理 | 黑名单设置   | 状态设置 |
 | ----- | --------- | ----------- |
-| ![规则管理](https://i.v2ex.co/7M0JYeB0l.png)  |![黑名单设置](https://i.v2ex.co/9X5gRtgDl.png)     | ![状态设置](https://i.v2ex.co/LD372Ec5l.png)    |
+| ![规则管理](https://i.v2ex.co/7M0JYeB0l.png)  |![黑名单设置](https://i.v2ex.co/9X5gRtgDl.png)    | ![状态设置](https://i.v2ex.co/LD372Ec5l.png)    |
 
 ## 下载地址
 
