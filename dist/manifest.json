@@ -20,7 +20,7 @@
     "background": {
         "scripts": ["js/backgroundPage.js"]
     },
-    "host_permissions": ["https://*/*"],
+    "host_permissions": ["*://*/*"],
     "incognito": "spanning",
     "permissions": [
         "tabs",
