@@ -60,5 +60,5 @@ jobs:
         uses: opspresso/action-release@v0.2.9
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          TAG_NAME: ${{ github.run_number }}
+          TAG_NAME: whistle-firefox-${{ github.run_number }}
           ASSET_PATH: firefox.zip
