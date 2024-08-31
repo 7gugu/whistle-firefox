@@ -18,8 +18,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '16.x'
-      - run: npm ci
-      - run: npm run build_ff -- --env=version=$MAJOR_VER.$MINOR_VER.${{ github.run_number }}
+      - run: npm install
+      - run: npm run build -- --env=version=$MAJOR_VER.$MINOR_VER.${{ github.run_number }}
       - name: Zip firefox
         run: zip -qq -r firefox.zip *
         working-directory: dist/firefox_prod
