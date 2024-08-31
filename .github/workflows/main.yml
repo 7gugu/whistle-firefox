@@ -31,7 +31,7 @@ jobs:
   publish_firefox:
     needs: [build_firefox]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - name: Zip source
@@ -52,7 +52,7 @@ jobs:
   publish_release:
     needs: [ build_firefox ]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Download extension
         uses: actions/download-artifact@v4
