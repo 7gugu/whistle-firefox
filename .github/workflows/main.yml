@@ -1,0 +1,64 @@
+name: Build and Publish
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  MAJOR_VER: 1
+  MINOR_VER: 1
+
+jobs:
+  build_firefox:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16.x'
+      - run: npm ci
+      - run: npm run build_ff -- --env=version=$MAJOR_VER.$MINOR_VER.${{ github.run_number }}
+      - name: Zip firefox
+        run: zip -qq -r firefox.zip *
+        working-directory: dist/firefox_prod
+      - uses: actions/upload-artifact@v4
+        with:
+          name: firefox
+          path: dist/firefox_prod/firefox.zip
+
+  publish_firefox:
+    needs: build_firefox
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Zip source
+        run: zip -qq -r src.zip *
+      - name: Download extension
+        uses: actions/download-artifact@v4
+        with:
+          name: firefox
+      - name: Publish Firefox
+        uses: maoserr/firefox_extension_publish@v1.0.4
+        with:
+          firefox_extension_id: epublifier@maoserr.com
+          api_key: ${{ secrets.FIREFOX_API_KEY }}
+          api_secret: ${{ secrets.FIREFOX_API_SECRET }}
+          file: firefox.zip
+          src_file: src.zip
+
+  publish_release:
+    needs: [ build_firefox ]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Download extension
+        uses: actions/download-artifact@v4
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.MAJOR_VER }}.${{ env.MINOR_VER }}.${{ github.run_number }}
+          files: |
+            firefox/firefox.zip
+            chrome/chrome.zip
