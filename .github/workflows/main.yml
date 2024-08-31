@@ -40,8 +40,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: firefox
-      - name: Get and Print Value
-        run: echo "The value is ${{ secrets.FIREFOX_API_KEY }}"
       - name: Publish Firefox
         uses: maoserr/firefox_extension_publish@v1.0.4
         with:
