@@ -31,7 +31,7 @@
 
 | 规则管理 | 黑名单设置   | 状态设置 |
 | ----- | --------- | ----------- |
-| ![规则管理](https://i.v2ex.co/7M0JYeB0l.png)  |![黑名单设置](https://i.v2ex.co/9X5gRtgDl.png)     | ![状态设置](https://i.v2ex.co/LD372Ec5l.png)    |
+| ![规则管理](https://i.v2ex.co/7M0JYeB0l.png)  |![黑名单设置](https://i.v2ex.co/9X5gRtgDl.png)    | ![状态设置](https://i.v2ex.co/LD372Ec5l.png)    |
 
 ## 下载地址
 
@@ -45,11 +45,6 @@
 2. 运行 `yarn build` 构建产物
 3. 产物将会生成在项目根目录下的dist文件夹中
 4. 通过Firefox的 `about:debugging` 安装`dist/manifest.json` 即可安装本地构建的addon
-
-## 数据统计
-> 更新时间: 2024年08月05日
-<img width="742" alt="图片" src="https://github.com/user-attachments/assets/66a5a2eb-6552-4d3e-ac59-8b610a28c738">
-
 
 ## 联系方式
 
