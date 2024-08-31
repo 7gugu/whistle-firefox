@@ -46,11 +46,6 @@
 3. 产物将会生成在项目根目录下的dist文件夹中
 4. 通过Firefox的 `about:debugging` 安装`dist/manifest.json` 即可安装本地构建的addon
 
-## 数据统计
-> 更新时间: 2024年08月05日
-<img width="742" alt="图片" src="https://github.com/user-attachments/assets/66a5a2eb-6552-4d3e-ac59-8b610a28c738">
-
-
 ## 联系方式
 
 > 如果有使用问题，可以优先通过邮箱和Firefox评论区提交问题，正常情况下在一个工作日内就会回复。（公共假期不定期回复）
