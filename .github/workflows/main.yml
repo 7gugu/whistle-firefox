@@ -48,6 +48,13 @@ jobs:
           api_secret: ${{ secrets.FIREFOX_API_SECRET }}
           file: firefox.zip
           src_file: src.zip
+      - name: Push notification
+        uses: shink/bark-action@v2
+        with:
+          key: ${{ secrets.BARK_KEY }}       # Your secret key, it is required
+          title: ✅Extension Publish Success!
+          body: whistle-firefox
+          isArchive: 1
 
   publish_release:
     needs: [ build_firefox ]
